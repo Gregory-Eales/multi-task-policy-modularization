@@ -28,7 +28,7 @@ First, install dependencies
 # clone MBAN 
 git clone https://github.com/Gregory-Eales/MBAN
 
-# install project   
+# install MBAN   
 cd MBAN
 pip install -e .   
 pip install -r requirements.txt
@@ -45,28 +45,27 @@ python train.py
 ## Imports
 This project is setup as a package which means you can now easily import any file into any other file like so:
 ```python
-from project.datasets.mnist import mnist
-from project.lit_classifier_main import LitClassifier
+from mban.envs.env import Env
+from mban.agents import Agent
 from pytorch_lightning import Trainer
 
-# model
-model = LitClassifier()
+# agent
+agent = Agent()
 
-# data
-train, val, test = mnist()
+# environment
+env = Env()
 
 # train
-trainer = Trainer()
-trainer.fit(model, train, val)
+agent.train(env)
 
-# test using the best model!
-trainer.test(test_dataloaders=test)
+# test
+agent.run(env)
 ```
 
 ### Citation   
 ```
 @article{Gregory Eales,
-  title={Improved Model Based RL using Action Narration and Group Discussion   },
+  title={Improved Model Based RL using Action Narration and Group Discussion},
   author={independent},
   journal={arxiv},
   year={2020}
