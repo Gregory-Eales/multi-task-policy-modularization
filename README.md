@@ -26,10 +26,10 @@ In this project we demonstrate the ability of reinforcement learning agents to p
 First, install dependencies   
 ```bash
 # clone MBAN 
-git clone https://github.com/Gregory-Eales/MBAN
+git clone https://github.com/Gregory-Eales/mban
 
-# install MBAN   
-cd MBAN
+# install mban
+cd mban
 pip install -e .   
 pip install -r requirements.txt
  ```   
@@ -65,8 +65,8 @@ agent.run(env)
 ### Citation   
 ```
 @article{Gregory Eales,
-  title={Improved Model Based RL using Action Narration and Group Discussion},
-  author={independent},
+  title={Improved Model Based RL using Action Narration and Ensamble Discourse},
+  author={University of London},
   journal={arxiv},
   year={2020}
 }
