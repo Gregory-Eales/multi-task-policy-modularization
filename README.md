@@ -20,13 +20,13 @@ Conference
 </div>
  
 ## Description   
-In this project we demonstrate the ability of reinforcement learning agents to produce meaninful 'narration' of actions that can be used for the instruction of other agents and for planning in latent space.
+In this project we demonstrate the ability of reinforcement learning agents to learn multiple objectives while preserving unrelated features through training.
 
 ## How to run   
 First, install dependencies   
 ```bash
-# clone MBAN 
-git clone https://github.com/Gregory-Eales/mban
+# clone multi-task-policy-modularization
+git clone https://github.com/Gregory-Eales/multi-task-policy-modularization
 
 # install mban
 cd mban
@@ -36,9 +36,9 @@ pip install -r requirements.txt
  Next, navigate to any file and run it.   
  ```bash
 # module folder
-cd mban
+cd multi-task-policy-modularization
 
-# run module (example: mnist as your main contribution)   
+# run module 
 python train.py    
 ```
 
@@ -65,7 +65,7 @@ agent.run(env)
 ### Citation   
 ```
 @article{Gregory Eales,
-  title={Improved Model Based RL using Action Narration and Ensamble Discourse},
+  title={Multi-Task Policy Modularization},
   author={University of London},
   journal={arxiv},
   year={2020}
