@@ -1,9 +1,12 @@
 import gym
 from matplotlib import pyplot as plt
 
+
 from .dir import *
 from .seed import *
 from .train_loop import *
+from .graph import *
+from .data import *
 
 def run_experiment(
 	agent_class,
@@ -34,7 +37,7 @@ def run_experiment(
 	# create the path for the experiment
 	exp_path = create_exp_dir(experiment_name)
 
-
+	rewards = []
 	# run a training loop for each seed
 
 	for env_name in env_names:
@@ -60,6 +63,8 @@ def run_experiment(
 				epsilon
 				)
 
-			rewards = train(agent, env)
-			plt.plot(rewards)
-			plt.show()
+			rewards.append(train(agent, env))
+
+	plot_rewards(rewards, path=exp_path)
+			
+		

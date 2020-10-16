@@ -38,7 +38,7 @@ if __name__ == '__main__':
 	parser.add_argument('--graph', default=True, type=bool)
 
 	# training params
-	parser.add_argument('--random_seeds', default=list(range(1)), type=list)
+	parser.add_argument('--random_seeds', default=list(range(5)), type=list)
 	parser.add_argument('--n_episodes', default=20, type=int)
 	parser.add_argument('--n_steps', default=100000, type=int)
 	parser.add_argument('--batch_sz', default=64, type=int)

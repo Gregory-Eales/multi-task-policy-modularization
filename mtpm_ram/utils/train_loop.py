@@ -8,8 +8,8 @@ def train(
 	agent,
 	env,        
 	log_interval = 20,          
-	max_episodes = 5000,       
-	max_timesteps = 300,        
+	max_episodes = 1000,       
+	max_timesteps = 20000,        
 	update_timestep = 500,    
 	):
 	#############################################
@@ -42,12 +42,17 @@ def train(
 			if done:
 				running = False
 
-		if timestep % update_timestep == 0:
-				agent.update()
-				rewards.append(running_reward/timestep)
-				print(rewards)
-				timestep = 0
-				running_reward = 0
+			if timestep > max_timesteps:
+				break
+
+			if timestep % update_timestep == 0:
+					agent.update()
+					rewards.append(running_reward/update_timestep)
+					#print(rewards)
+					running_reward = 0
+
+		if timestep > max_timesteps:
+				break
 				
 		"""
 		# stop training if avg_reward > solved_reward

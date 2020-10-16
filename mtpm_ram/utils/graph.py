@@ -1,5 +1,4 @@
 from matplotlib import pyplot as plt
-
 import numpy as np
 import random
 
@@ -8,7 +7,41 @@ def generate_graphs(agent, path=None):
 
 	reward_per_epoch(agent.get_rewards(), path=path)
 
-def reward_per_epoch(reward, path=None):
+
+
+def plot_rewards(rewards, path=None):
+
+	rewards = np.array([np.array(r) for r in rewards])
+
+
+	print(rewards.shape)
+
+	mean_rewards = rewards.mean(axis=0)
+
+	print(mean_rewards.shape)
+
+	plt.plot(mean_rewards, label="mean rewards")
+
+	plt.fill_between(
+		list(range(rewards.shape[1])),
+		np.amax(rewards, axis=0),
+		np.amin(rewards, axis=0),
+		alpha=0.2)
+
+	plt.title("Reward per Epoch")
+	plt.xlabel("Epoch")
+	plt.ylabel("Reward")
+	plt.legend(loc="upper left")
+
+
+	if path == None:
+		plt.show()
+
+	else:
+		plt.savefig('{}/graphs/reward_per_update.png'.format(path))
+
+
+def reward_per_epoch(rewards, path=None):
 
 	plt.title("Reward per Epoch")
 	plt.xlabel("Epoch")
