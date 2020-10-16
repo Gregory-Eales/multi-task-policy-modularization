@@ -14,6 +14,25 @@ from utils import *
 torch.autograd.set_detect_anomaly(True)
 
 
+"""
+########################################
+TO DO:
+
+	- create encoder-decoder pair
+	- policy head
+	- action-value head
+	- make sure ppo solo works
+	- implement parallelization?
+	- how to train routing network? (distance clustering?)
+
+
+	1. train encoder-decoder
+	2. train cluster algorithm on latent space
+	3. train agent using clustered feature modularizer
+
+########################################
+"""
+
 def train(agent, env, n_epoch, n_steps):
 
 	counter = 0
