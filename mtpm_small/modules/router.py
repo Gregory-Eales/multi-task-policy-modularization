@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 
-class Router(torch.nn.module):
+class Router(torch.nn.Module):
 
 
 	def __init__(self):

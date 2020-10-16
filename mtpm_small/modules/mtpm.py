@@ -1,17 +1,14 @@
 import torch
 
-from .actor import Actor
-from .critic import Critic
+from .actor_critic import ActorCritic
 from .router import Router
-from .encoder import Encoder
-from .decoder import Decoder
 
 
 class MTPM(torch.nn.Module):
 
 	def __init__(self):
 		
-		self.actor = Actor()
+		self.actor_critic = ActorCritic()
 		self.critic = Critic() # needs to be a q function
 		self.router = Router()
 		self.encoder = Encoder()

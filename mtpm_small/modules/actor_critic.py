@@ -1,4 +1,6 @@
 import torch
+from torch import nn
+from torch.distributions import Categorical
 from tqdm import tqdm
 import numpy as np
 
@@ -28,17 +30,6 @@ class ActorCritic(nn.Module):
 	def forward(self):
 		raise NotImplementedError
 		
-	def act(self, state, memory):
-		state = torch.from_numpy(state).float().to(device) 
-		action_probs = self.action_layer(state)
-		dist = Categorical(action_probs)
-		action = dist.sample()
-		
-		memory.states.append(state)
-		memory.actions.append(action)
-		memory.logprobs.append(dist.log_prob(action))
-		
-		return action.item()
 	
 	def evaluate(self, state, action):
 		action_probs = self.action_layer(state)

@@ -5,7 +5,7 @@ import random
 import gym3
 
 from .actor_critic import ActorCritic
-from .buffer import Buffer
+from .memory import Memory
 
 
 class RandomAgent():
