@@ -31,14 +31,17 @@ if __name__ == '__main__':
 
 	# experiment and  environment
 	parser.add_argument('--experiment_name', default="default", type=str)
-	parser.add_argument('--env_names', default=["LunarLander-v2",])
+	parser.add_argument(
+	'--env_names',
+	default=["Breakout-ram-v0"]#,"Pong-ram-v0"]
+	)
 
 	# saving options
 	parser.add_argument('--log', default=True, type=bool)
 	parser.add_argument('--graph', default=True, type=bool)
 
-	# training params
-	parser.add_argument('--random_seeds', default=list(range(3)), type=list)
+	# training args
+	parser.add_argument('--random_seeds', default=list(range(1)), type=list)
 	parser.add_argument('--n_episodes', default=20, type=int)
 	parser.add_argument('--n_steps', default=100000, type=int)
 	parser.add_argument('--batch_sz', default=64, type=int)
@@ -46,33 +49,34 @@ if __name__ == '__main__':
 	parser.add_argument('--critic_epochs', default=20, type=int)
 	parser.add_argument('--n_envs', default=1, type=int)
 
-	# model params
+	# model args
 	parser.add_argument('--lr', default=0.0005, type=float)
 	parser.add_argument('--epsilon', default=0.4, type=float)
-	parser.add_argument('--n_latent_var', default=32, type=int)
+	parser.add_argument('--n_latent_var', default=256, type=int)
 	parser.add_argument('--k_epochs', default=2, type=int)
-	parser.add_argument('--max_episodes', default=400, type=int)
-	parser.add_argument('--update_episodes', default=20, type=int)
+	parser.add_argument('--max_episodes', default=10, type=int)
+	parser.add_argument('--update_episodes', default=1, type=int)
 
-	params = parser.parse_args()
+	args = parser.parse_args()
 
 	run_experiment(
 		agent_class=PPO,
-		experiment_name=params.experiment_name,
-		env_names=params.env_names,
-		log=params.log,
-		graph=params.graph,
-		random_seeds=params.random_seeds,
-		n_episodes=params.n_episodes,
-		n_steps=params.n_steps,
-		n_envs=params.n_envs,
-		epsilon=params.epsilon,
-		batch_sz=params.batch_sz,
-		lr=params.lr,
-		gamma=params.gamma,
-		critic_epochs=params.critic_epochs,
-		n_latent_var = params.n_latent_var,          
-		k_epochs = params.k_epochs,
-		max_episodes = params.max_episodes,              
-		update_episodes = params.update_episodes, 
+		experiment_name=args.experiment_name,
+		env_names=args.env_names,
+		log=args.log,
+		graph=args.graph,
+		random_seeds=args.random_seeds,
+		n_episodes=args.n_episodes,
+		n_steps=args.n_steps,
+		n_envs=args.n_envs,
+		epsilon=args.epsilon,
+		batch_sz=args.batch_sz,
+		lr=args.lr,
+		gamma=args.gamma,
+		critic_epochs=args.critic_epochs,
+		n_latent_var = args.n_latent_var,          
+		k_epochs = args.k_epochs,
+		max_episodes = args.max_episodes,              
+		update_episodes = args.update_episodes,
+		args = args 
 	)

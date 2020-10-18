@@ -3,13 +3,13 @@ import numpy as np
 import random
 
 
-def generate_graphs(agent, path=None):
+def generate_graphs(agent, path=None, env_name=None):
 
 	reward_per_epoch(agent.get_rewards(), path=path)
 
 
 
-def plot_rewards(rewards, path=None):
+def plot_rewards(rewards, path=None, env_name=""):
 
 	rewards = np.array([np.array(r) for r in rewards])
 
@@ -26,7 +26,8 @@ def plot_rewards(rewards, path=None):
 		list(range(rewards.shape[1])),
 		np.amax(rewards, axis=0),
 		np.amin(rewards, axis=0),
-		alpha=0.2)
+		alpha=0.2
+		)
 
 	plt.title("Reward per Epoch")
 	plt.xlabel("Epoch")
@@ -38,7 +39,9 @@ def plot_rewards(rewards, path=None):
 		plt.show()
 
 	else:
-		plt.savefig('{}/graphs/reward_per_update.png'.format(path))
+		plt.savefig('{}/graphs/{}_reward.png'.format(path, env_name))
+
+	plt.clf()
 
 
 def reward_per_epoch(rewards, path=None):

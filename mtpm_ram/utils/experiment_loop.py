@@ -26,7 +26,8 @@ def run_experiment(
 	n_latent_var,           
 	k_epochs,
 	max_episodes,               
-	update_episodes,               
+	update_episodes,
+	args,              
 ):
 
 	# 1. create experiment directory
@@ -38,10 +39,11 @@ def run_experiment(
 	# create the path for the experiment
 	exp_path = create_exp_dir(experiment_name)
 
-	rewards = []
+	#rewards = []
 	# run a training loop for each seed
 
 	for env_name in env_names:
+		rewards = []
 		for seed in random_seeds:
 	
 			env = gym.make(env_name)
@@ -69,6 +71,25 @@ def run_experiment(
 
 			rewards.append(r)
 
-	plot_rewards(rewards, path=exp_path)
-			
+		plot_rewards(
+			rewards,
+			path=exp_path,
+			env_name=env_name
+			)
+
+		save_results(
+			env_name=env_name,
+			seeds=random_seeds,
+			rewards=rewards,
+			update_episodes=update_episodes,
+			path=exp_path
+			)
+
+		save_arguments(path=exp_path, args=args)
+
+def main():
+	pass
+
+if __name__ == "__main__":
+	main()
 		
