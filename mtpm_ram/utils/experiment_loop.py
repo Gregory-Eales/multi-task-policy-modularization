@@ -47,6 +47,7 @@ def run_experiment(
 		for seed in random_seeds:
 	
 			env = gym.make(env_name)
+
 			state_dim = env.observation_space.shape[0]
 			action_dim = env.action_space.n
 
