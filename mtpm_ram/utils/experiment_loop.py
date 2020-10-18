@@ -23,9 +23,10 @@ def run_experiment(
 	lr,
 	gamma,
 	critic_epochs,
-	n_latent_var = 64,
-	betas = (0.9, 0.999),            
-	k_epochs = 4,              
+	n_latent_var,           
+	k_epochs,
+	max_episodes,               
+	update_episodes,               
 ):
 
 	# 1. create experiment directory
@@ -47,23 +48,26 @@ def run_experiment(
 			state_dim = env.observation_space.shape[0]
 			action_dim = env.action_space.n
 
-			print(state_dim)
-			print(action_dim)
-
 			set_seed(env, seed)
 
 			agent = agent_class(
 				state_dim,
 				action_dim,
-				n_latent_var,
-				lr,
-				betas,
-				gamma,
-				k_epochs,
-				epsilon
+				n_latent_var=n_latent_var,
+				lr=lr,
+				gamma=gamma,
+				k_epochs=k_epochs,
+				epsilon=epsilon
 				)
 
-			rewards.append(train(agent, env))
+			r = train(
+				agent=agent,
+				env=env,          
+				max_episodes = max_episodes,        
+				update_episodes = update_episodes,    
+				)
+
+			rewards.append(r)
 
 	plot_rewards(rewards, path=exp_path)
 			

@@ -38,7 +38,7 @@ if __name__ == '__main__':
 	parser.add_argument('--graph', default=True, type=bool)
 
 	# training params
-	parser.add_argument('--random_seeds', default=list(range(5)), type=list)
+	parser.add_argument('--random_seeds', default=list(range(3)), type=list)
 	parser.add_argument('--n_episodes', default=20, type=int)
 	parser.add_argument('--n_steps', default=100000, type=int)
 	parser.add_argument('--batch_sz', default=64, type=int)
@@ -47,8 +47,12 @@ if __name__ == '__main__':
 	parser.add_argument('--n_envs', default=1, type=int)
 
 	# model params
-	parser.add_argument('--lr', default=0.002, type=float)
-	parser.add_argument('--epsilon', default=0.3, type=float)
+	parser.add_argument('--lr', default=0.0005, type=float)
+	parser.add_argument('--epsilon', default=0.4, type=float)
+	parser.add_argument('--n_latent_var', default=32, type=int)
+	parser.add_argument('--k_epochs', default=2, type=int)
+	parser.add_argument('--max_episodes', default=400, type=int)
+	parser.add_argument('--update_episodes', default=20, type=int)
 
 	params = parser.parse_args()
 
@@ -67,7 +71,8 @@ if __name__ == '__main__':
 		lr=params.lr,
 		gamma=params.gamma,
 		critic_epochs=params.critic_epochs,
-		n_latent_var = 64,
-		betas = (0.9, 0.999),           
-		k_epochs = 4,
+		n_latent_var = params.n_latent_var,          
+		k_epochs = params.k_epochs,
+		max_episodes = params.max_episodes,              
+		update_episodes = params.update_episodes, 
 	)

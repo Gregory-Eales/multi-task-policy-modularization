@@ -1,24 +1,23 @@
 import torch
 from torch import nn
 from torch.distributions import Categorical
-
+import numpy as np
 from .memory import Memory
 from .actor_critic import ActorCritic
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class PPO:
-	def __init__(self, state_dim, action_dim, n_latent_var, lr, betas, gamma, k_epochs, eps_clip):
+	def __init__(self, state_dim, action_dim, n_latent_var, lr, gamma, k_epochs, epsilon):
 		self.lr = lr
-		self.betas = betas
 		self.gamma = gamma
-		self.eps_clip = eps_clip
+		self.eps_clip = epsilon
 		self.k_epochs = k_epochs
 
 		self.memory = Memory()
 
 		self.policy = ActorCritic(state_dim, action_dim, n_latent_var).to(device)
-		self.optimizer = torch.optim.Adam(self.policy.parameters(), lr=lr, betas=betas)
+		self.optimizer = torch.optim.Adam(self.policy.parameters(), lr=lr)
 		self.policy_old = ActorCritic(state_dim, action_dim, n_latent_var).to(device)
 		self.policy_old.load_state_dict(self.policy.state_dict())
 		
@@ -43,6 +42,25 @@ class PPO:
 		self.memory.rewards.append(reward)
 		self.memory.is_terminals.append(done)
 
+
+	def actor_loss(self, logprobs, old_logprobs, rewards, state_values, dist_entropy):
+
+		# Finding the ratio (pi_theta / pi_theta__old):
+		ratios = torch.exp(logprobs - old_logprobs.detach())
+			
+		# Finding Surrogate Loss:
+		advantages = rewards - state_values.detach()
+		surr1 = ratios * advantages
+		surr2 = torch.clamp(ratios, 1-self.eps_clip, 1+self.eps_clip) * advantages
+		loss = -torch.min(surr1, surr2) - 0.01*dist_entropy
+
+		return loss
+
+
+	def shuffle(self, rewards, old_states, old_actions, old_logprobs):	
+		p = np.random.permutation(rewards.shape[0])
+		return rewards[p], old_states[p], old_actions[p], old_logprobs[p]
+
 	
 	def update(self):   
 		# Monte Carlo estimate of state rewards:
@@ -62,25 +80,46 @@ class PPO:
 		old_states = torch.stack(self.memory.states).to(device).detach()
 		old_actions = torch.stack(self.memory.actions).to(device).detach()
 		old_logprobs = torch.stack(self.memory.logprobs).to(device).detach()
+
+
+		rewards, old_states, old_actions, old_logprobs = self.shuffle(
+			rewards,
+			old_states,
+			old_actions,
+			old_logprobs
+			)
 		
+		btch = 128
 		# Optimize policy for K epochs:
-		for _ in range(self.k_epochs):
-			# Evaluating old actions and values :
-			logprobs, state_values, dist_entropy = self.policy.evaluate(old_states, old_actions)
+		for k in range(self.k_epochs):
+			for e in range(old_states.shape[0]//btch):
 			
-			# Finding the ratio (pi_theta / pi_theta__old):
-			ratios = torch.exp(logprobs - old_logprobs.detach())
+				state_values = self.policy.evaluate_critic(old_states[(e)*btch:(e+1)*btch])
+				loss = 0.5*self.loss(state_values, rewards[(e)*btch:(e+1)*btch])
+				# take gradient step
+				self.optimizer.zero_grad()
+				loss.mean().backward()
+				self.optimizer.step()
+
+						# Evaluating old actions and values :
+				logprobs, dist_entropy = self.policy.evaluate_actor(
+					old_states[(e)*btch:(e+1)*btch],
+					old_actions[(e)*btch:(e+1)*btch]
+					)
+
+				#state_values= self.policy.evaluate_critic(old_states)
+
+				loss = self.actor_loss(
+					logprobs,
+					old_logprobs[(e)*btch:(e+1)*btch],
+					rewards[(e)*btch:(e+1)*btch],
+					state_values,
+					dist_entropy
+					)
 				
-			# Finding Surrogate Loss:
-			advantages = rewards - state_values.detach()
-			surr1 = ratios * advantages
-			surr2 = torch.clamp(ratios, 1-self.eps_clip, 1+self.eps_clip) * advantages
-			loss = -torch.min(surr1, surr2) + 0.5*self.loss(state_values, rewards) - 0.01*dist_entropy
-			
-			# take gradient step
-			self.optimizer.zero_grad()
-			loss.mean().backward()
-			self.optimizer.step()
+				self.optimizer.zero_grad()
+				loss.mean().backward()
+				self.optimizer.step()
 		
 		# Copy new weights into old policy:
 		self.policy_old.load_state_dict(self.policy.state_dict())
