@@ -54,7 +54,7 @@ if __name__ == '__main__':
 	parser.add_argument('--epsilon', default=0.4, type=float)
 	parser.add_argument('--n_latent_var', default=256, type=int)
 	parser.add_argument('--k_epochs', default=2, type=int)
-	parser.add_argument('--max_episodes', default=4000, type=int)
+	parser.add_argument('--max_episodes', default=8000, type=int)
 	parser.add_argument('--update_episodes', default=100, type=int)
 
 	args = parser.parse_args()

@@ -4,7 +4,7 @@ import numpy as np
 import random
 import gym3
 
-from actor_critic import ActorCritic
+from .actor_critic import ActorCritic
 from .buffer import Buffer
 
 
@@ -44,8 +44,8 @@ class PPO(object):
 		self.epsilon = epsilon
 		self.k_epochs = k_epochs
 
-		self.actor =  ActorCritic()
-		self.k_actor = ActorCritic()
+		self.actor =  ActorCritic(actor_lr=actor_lr, epsilon=epsilon)
+		self.k_actor = ActorCritic(actor_lr=actor_lr, epsilon=epsilon)
 		self.transfer_weights()
 
 		self.buffer = Buffer()

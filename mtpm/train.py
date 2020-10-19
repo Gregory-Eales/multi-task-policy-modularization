@@ -11,9 +11,6 @@ from matplotlib import pyplot as plt
 from modules import *
 from utils import *
 
-torch.autograd.set_detect_anomaly(True)
-
-
 """
 ########################################
 TO DO:
@@ -38,9 +35,10 @@ def train(agent, env, n_epoch, n_steps):
 	counter = 0
 	ran = False
 
+	reward, prev_state, prev_first = env.observe()
+
 	for epoch in tqdm(range(n_steps)):
 
-		reward, prev_state, prev_first = env.observe()
 
 		action = agent.act(prev_state['rgb'])
 
@@ -48,17 +46,14 @@ def train(agent, env, n_epoch, n_steps):
 
 		reward, state, first = env.observe()
 
+
 		agent.store(state['rgb'], reward, prev_state['rgb'], prev_first)
 		prev_state = state
 		prev_first = first
 
-		if first:
-			ran = False
-			counter+=1
-
-		if counter % 10 == 0 and counter != 0 and not ran:
-			agent.update()
-			ran = True
+		if counter % 10 == 0 and epoch!=0:
+			#agent.update()
+			pass
 
 
 def train_multi(agent, env, n_epoch, n_steps):
@@ -112,7 +107,7 @@ def run_experiment(
 	critic_lr,
 	actor_lr,
 	gamma,
-	critic_epochs,
+	k_epochs,
 ):
 
 	exp_path = create_exp_dir(experiment_name)
@@ -123,7 +118,7 @@ def run_experiment(
 		batch_sz=batch_sz,
 		gamma=gamma,
 		epsilon=epsilon,
-		critic_epochs=critic_epochs,
+		k_epochs=k_epochs,
 	)
 
 	# agent = RandomAgent(n_envs=n_envs)
@@ -175,8 +170,8 @@ if __name__ == '__main__':
 	parser.add_argument('--n_steps', default=100000, type=int)
 	parser.add_argument('--batch_sz', default=64, type=int)
 	parser.add_argument('--gamma', default=0.999, type=float)
-	parser.add_argument('--critic_epochs', default=20, type=int)
-	parser.add_argument('--n_envs', default=1, type=int)
+	parser.add_argument('--k_epochs', default=20, type=int)
+	parser.add_argument('--n_envs', default=64, type=int)
 
 	# model params
 	parser.add_argument('--actor_lr', default=2e-1, type=float)
@@ -199,5 +194,5 @@ if __name__ == '__main__':
 		critic_lr=params.critic_lr,
 		actor_lr=params.actor_lr,
 		gamma=params.gamma,
-		critic_epochs=params.critic_epochs,
+		k_epochs=params.k_epochs,
 	)
