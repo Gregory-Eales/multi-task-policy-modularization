@@ -4,6 +4,7 @@ import numpy as np
 import random
 import gym3
 
+
 from .actor_critic import ActorCritic
 from .buffer import Buffer
 
@@ -54,59 +55,100 @@ class PPO(object):
 
 		s = torch.tensor(s).reshape(-1, 3, 64, 64).float()
 
-		prediction = self.actor.forward(s)
-		action_probabilities = torch.distributions.Categorical(prediction)
-		actions = action_probabilities.sample()
-		log_prob = action_probabilities.log_prob(actions)
+		pi, v = self.actor.forward(s)
 
-		k_p = self.k_actor(s)
+		self.buffer.store_values(v.detach())
+
+		action_probabilities = torch.distributions.Categorical(pi)
+		actions = action_probabilities.sample()
+		self.buffer.store_actions(actions)
+
+		k_p, k_v = self.k_actor(s)
 		k_ap = torch.distributions.Categorical(k_p)
 		k_log_prob = k_ap.log_prob(actions.detach())
 
-		self.buffer.store_log_probs(log_prob, k_log_prob.detach())
+		self.buffer.store_k_log_probs(k_log_prob.detach())
 
 		return actions.detach().numpy()
 
-	def discount_rewards(self):
-		firsts = np.array(self.buffer.firsts).reshape([-1, 1]).astype('int32')
-		rewards = np.array(self.buffer.rewards).reshape([-1, 1])
-		for i in tqdm(reversed(range(rewards.shape[0]-1))):
-			rewards[i] += rewards[i+1]*self.gamma*(1-firsts[i])
+	def pi_loss(self, pi, actions, k_log_probs, advantages):
 
-		self.buffer.disc_rewards = rewards
+		action_probabilities = torch.distributions.Categorical(pi)
+		log_probs = action_probabilities.log_prob(actions)
+
+		r_theta = torch.exp(log_probs-k_log_probs)
+
+		clipped_r = torch.clamp(
+			r_theta,
+			1.0 - self.epsilon,
+			1.0 + self.epsilon
+			)
+
+		return torch.mean(torch.min(r_theta*advantages, clipped_r*advantages))
+
+	def discount_rewards(self):
+
+		values = torch.cat(self.buffer.values, dim=1).reshape(-1, 1)
+		adv = torch.clone(values)
+
+		firsts = torch.Tensor(self.buffer.firsts).reshape(-1, 1).float()
+		r = torch.Tensor(self.buffer.rewards).reshape(-1, 1)
+
+
+		for i in tqdm(reversed(range(r.shape[0]-1))):
+			r[i] = r[i+1]*self.gamma*(1-firsts[i+1]) + (firsts[i+1]*r[i])
+
+			delta = r[i] + self.gamma*adv[i+1] - adv[i]
+			adv[i] = (delta + adv[i+1])*(1-firsts[i+1]) + (firsts[i+1]*adv[i])
+
+
+		self.buffer.disc_rewards = r
+		self.buffer.advantages = adv
 
 	def transfer_weights(self):
 		state_dict = self.actor.state_dict()
 		self.k_actor.load_state_dict(state_dict)
 
-	def store(self, state, reward, prev_state, first):
-		self.buffer.store(state, reward, prev_state, first)
+	def store(self, state, reward, first):
+		self.buffer.store(state, reward, first)
 
-	def calculate_advantages(self, states, prev_states):
-
-		v = self.critic(p_s).detach()
-		q = self.critic(s).detach()
-		a = (q - v + 1)
-		
-		return a
+	def shuffle(self, s, a, k_lp, d_r, adv):	
+		p = np.random.permutation(s.shape[0])
+		return s[p], a[p], k_lp[p], d_r[p], adv[p]
 
 	def update(self):
 
 		self.discount_rewards()
 	
-		s, lp, p_s, k_lp, d_r = self.buffer.get()
-
-		adv = self.calculate_advantages(s, p_s)
+		s, a, k_lp, d_r, adv = self.buffer.get()
+		s, a, k_lp, d_r, adv = self.shuffle(s, a, k_lp, d_r, adv)
 
 		self.transfer_weights()
 
-		for _ in tqdm(range(self.k_epochs)):
+		num_batches = s.shape[0]//self.batch_sz
+
+		for k in tqdm(range(self.k_epochs)):
 
 			for b in range(num_batches):
 
-				# get 
+
+				# calculate values and policy
+				pi, v = self.actor.forward(s)
 				
-				loss = self.actor_critic.loss(log_probs, k_log_probs, advantages)
+				pi_loss = self.pi_loss(self,
+					pi[b*self.batch_sz:(b+1)*self.batch_sz],
+					a[b*self.batch_sz:(b+1)*self.batch_sz],
+					k_lp[b*self.batch_sz:(b+1)*self.batch_sz],
+					adv[b*self.batch_sz:(b+1)*self.batch_sz]
+					)
+
+				v_loss = torch.nn.MSELoss(
+					v[b*self.batch_sz:(b+1)*self.batch_sz],
+					d_r[b*self.batch_sz:(b+1)*self.batch_sz]
+					)
+
+				loss = pi_loss + v_loss
+
 				self.optimizer.zero_grad()
 				loss.backward()
 				self.optimizer.step()
@@ -115,9 +157,20 @@ class PPO(object):
 
 	def get_rewards(self):
 		return self.buffer.mean_reward
+		
 
 def main():
-	pass
+
+	x1 = torch.ones(1, 10)
+	x2 = torch.ones(1, 1)
+
+	y = torch.clone(x1)
+
+	y[0][0] = 0
+
+	print(x1)
+
+	#print(torch.cat([x1, x2], dim=1).shape)
 
 if __name__ == "__main__":
 	main()

@@ -98,20 +98,13 @@ class ActorCritic(torch.nn.Module):
 		self.sigmoid = torch.nn.Sigmoid()
 		self.tanh = torch.nn.Tanh()
 		self.softmax = torch.nn.Softmax(dim=0)
-		
-		"""
-		self.l1 = torch.nn.Linear(1024, 512)
-		self.l2 = torch.nn.Linear(512, 64)
-		self.l3 = torch.nn.Linear(64, 15)
-		self.conv1 = torch.nn.Conv2d(3, 32, kernel_size=4, stride=2)
-		self.conv2 = torch.nn.Conv2d(32, 64, kernel_size=4, stride=2)
-		self.conv3 = torch.nn.Conv2d(64, 128, kernel_size=4, stride=2)
-		self.conv4 = torch.nn.Conv2d(128, 256, kernel_size=4, stride=2)
-		"""
 
 		self.l1 = torch.nn.Linear(32*5*5, 512)
-		self.l2 = torch.nn.Linear(512, 64)
-		self.l3 = torch.nn.Linear(64, 15)
+		self.l2 = torch.nn.Linear(512, 256)
+
+		self.pi = torch.nn.Linear(256, 15)
+		self.value = torch.nn.Linear(256, 1)
+
 		
 		self.block1 = ConvBlock(3, 16)
 		self.block2 = ConvBlock(16, 32)
@@ -119,17 +112,6 @@ class ActorCritic(torch.nn.Module):
 
 		self.critic_loss = torch.nn.MSELoss()
 
-	def actor_loss(self, log_probs, k_log_probs, advantages):
-
-		r_theta = torch.exp(log_probs-k_log_probs)
-
-		clipped_r = torch.clamp(
-			r_theta,
-			1.0 - self.epsilon,
-			1.0 + self.epsilon
-			)
-
-		return torch.mean(torch.min(r_theta*advantages, clipped_r*advantages))
 
 	def forward(self, x):
 
@@ -146,11 +128,14 @@ class ActorCritic(torch.nn.Module):
 		out = self.leaky_relu(out)
 		out = self.l2(out)
 		out = self.leaky_relu(out)
-		out = self.l3(out)
 
-		out = self.softmax(out)
 
-		return out.to(torch.device('cpu:0'))
+		pi = self.pi(out)
+		pi = self.softmax(pi).to(torch.device('cpu:0'))
+
+		v = self.value(out).to(torch.device('cpu:0'))
+
+		return pi, v
 
 	def optimize(
 		self,

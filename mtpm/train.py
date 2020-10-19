@@ -15,83 +15,35 @@ from utils import *
 ########################################
 TO DO:
 
-	- create encoder-decoder pair
-	- policy head
-	- action-value head
 	- make sure ppo solo works
-	- implement parallelization?
 	- how to train routing network? (distance clustering?)
 
-
-	1. train encoder-decoder
-	2. train cluster algorithm on latent space
-	3. train agent using clustered feature modularizer
+	1. train cluster algorithm on latent space
+	2. train agent using clustered feature modularizer
 
 ########################################
 """
 
-def train(agent, env, n_epoch, n_steps):
-
-	counter = 0
-	ran = False
-
-	reward, prev_state, prev_first = env.observe()
-
-	for epoch in tqdm(range(n_steps)):
+def train(agent, env, n_steps, update_step):
 
 
+	_, prev_state, prev_first = env.observe()
+
+	for step in tqdm(range(n_steps)):
+
+		
 		action = agent.act(prev_state['rgb'])
-
 		env.act(action)
 
 		reward, state, first = env.observe()
 
+		agent.store(prev_state['rgb'], reward, prev_first)	
 
-		agent.store(state['rgb'], reward, prev_state['rgb'], prev_first)
 		prev_state = state
 		prev_first = first
 
-		if counter % 10 == 0 and epoch!=0:
-			#agent.update()
-			pass
-
-
-def train_multi(agent, env, n_epoch, n_steps):
-
-	for epoch in range(n_epoch):
-
-		reward, prev_state, prev_first = env.observe()
-
-		for i in tqdm(range(n_steps)):
-
-			action = agent.act(prev_state['rgb'])
-
-			env.act(action)
-
-			reward, state, first = env.observe()
-			prev_state = state
-			prev_first = first
-
-
-def train_single(agent, env, n_epoch, n_steps):
-
-	prev_state = env.reset()
-
-	#for epoch in tqdm(range(n_epoch)):
-
-	for i in tqdm(range(n_steps)):
-
-		action = agent.act(prev_state)
-
-		state, reward, done, info = env.step(action[0])
-
-		if done:
-			pass
-
-		prev_state = state
-			
-		#agent.update()
-
+		if step % update_step == 0 and step!=0:
+			agent.update()
 
 def run_experiment(
 	experiment_name,
@@ -121,9 +73,6 @@ def run_experiment(
 		k_epochs=k_epochs,
 	)
 
-	# agent = RandomAgent(n_envs=n_envs)
-
-
 	env = ProcgenGym3Env(
 			num=n_envs,
 			env_name="coinrun",
@@ -133,24 +82,9 @@ def run_experiment(
 			start_level=2,
 			)
 
-	train(agent, env, n_episodes, n_steps)
+	train(agent, env, n_steps, 10)
 	generate_graphs(agent, exp_path)
 
-	print(len(agent.buffer.mean_reward))
-	print(np.array(agent.buffer.mean_reward).shape)
-	print(np.stack(agent.buffer.mean_reward).shape)
-	print(agent.buffer.mean_reward)
-
-
-	plt.plot(agent.buffer.mean_reward)
-	plt.show()
-
-	"""
-	import gym
-	env = gym.make("procgen:procgen-coinrun-v0")
-	env = ProcgenGym3Env(num=n_envs, env_name="coinrun")
-	train_single(agent, env, n_episodes, n_steps)
-	"""
 
 if __name__ == '__main__':
 
@@ -166,12 +100,12 @@ if __name__ == '__main__':
 
 	# training params
 	parser.add_argument('--random_seeds', default=list(range(10)), type=list)
-	parser.add_argument('--n_episodes', default=20, type=int)
-	parser.add_argument('--n_steps', default=100000, type=int)
+	parser.add_argument('--n_episodes', default=2, type=int)
+	parser.add_argument('--n_steps', default=100, type=int)
 	parser.add_argument('--batch_sz', default=64, type=int)
 	parser.add_argument('--gamma', default=0.999, type=float)
-	parser.add_argument('--k_epochs', default=20, type=int)
-	parser.add_argument('--n_envs', default=64, type=int)
+	parser.add_argument('--k_epochs', default=10, type=int)
+	parser.add_argument('--n_envs', default=3, type=int)
 
 	# model params
 	parser.add_argument('--actor_lr', default=2e-1, type=float)
