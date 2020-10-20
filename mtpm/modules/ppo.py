@@ -3,6 +3,7 @@ from tqdm import tqdm
 import numpy as np
 import random
 import gym3
+from matplotlib import pyplot as plt
 
 
 from .actor_critic import ActorCritic
@@ -49,27 +50,40 @@ class PPO(object):
 		self.k_actor = ActorCritic(actor_lr=actor_lr, epsilon=epsilon)
 		self.transfer_weights()
 
+		self.optimizer = torch.optim.Adam(
+			params=self.actor.parameters(),
+			lr=actor_lr
+			)
+
 		self.buffer = Buffer()
+
+		self.value_loss = torch.nn.MSELoss()
 
 	def act(self, s):
 
-		s = torch.tensor(s).reshape(-1, 3, 64, 64).float()
+		with torch.no_grad():
 
-		pi, v = self.actor.forward(s)
+			s = torch.tensor(s).reshape(-1, 3, 64, 64).float()
 
-		self.buffer.store_values(v.detach())
+			pi, v = self.actor.forward(s)
 
-		action_probabilities = torch.distributions.Categorical(pi)
-		actions = action_probabilities.sample()
-		self.buffer.store_actions(actions)
+			self.buffer.store_values(v.detach())
 
-		k_p, k_v = self.k_actor(s)
-		k_ap = torch.distributions.Categorical(k_p)
-		k_log_prob = k_ap.log_prob(actions.detach())
 
-		self.buffer.store_k_log_probs(k_log_prob.detach())
+			action_probabilities = torch.distributions.Categorical(pi)
+			
 
-		return actions.detach().numpy()
+			actions = action_probabilities.sample()
+
+			self.buffer.store_actions(actions)
+
+			k_p, k_v = self.k_actor(s)
+			k_ap = torch.distributions.Categorical(k_p)
+			k_log_prob = k_ap.log_prob(actions.detach())
+
+			self.buffer.store_k_log_probs(k_log_prob.detach())
+
+			return actions.detach().numpy()
 
 	def pi_loss(self, pi, actions, k_log_probs, advantages):
 
@@ -88,19 +102,30 @@ class PPO(object):
 
 	def discount_rewards(self):
 
-		values = torch.cat(self.buffer.values, dim=1).reshape(-1, 1)
-		adv = torch.clone(values)
+		v = torch.cat(self.buffer.values, dim=1).reshape(-1, 1)
+		adv = torch.clone(v)
 
-		firsts = torch.Tensor(self.buffer.firsts).reshape(-1, 1).float()
+		f = torch.Tensor(self.buffer.firsts).reshape(-1, 1).float()
 		r = torch.Tensor(self.buffer.rewards).reshape(-1, 1)
 
 
-		for i in tqdm(reversed(range(r.shape[0]-1))):
-			r[i] = r[i+1]*self.gamma*(1-firsts[i+1]) + (firsts[i+1]*r[i])
+		for i in reversed(range(r.shape[0]-1)):
 
-			delta = r[i] + self.gamma*adv[i+1] - adv[i]
+			
+
+			r[i] = r[i+1]*self.gamma*(1-f[i+1]) + (f[i+1]*r[i])
+
+			adv[i] = self.gamma*r[i] - v[i]
+
+			"""
+			delta = r[i] + self.gamma*values[i+1] - values[i]
 			adv[i] = (delta + adv[i+1])*(1-firsts[i+1]) + (firsts[i+1]*adv[i])
+			"""
 
+		
+		plt.plot(adv)
+		plt.plot(r)
+		plt.show()
 
 		self.buffer.disc_rewards = r
 		self.buffer.advantages = adv
@@ -127,33 +152,39 @@ class PPO(object):
 
 		num_batches = s.shape[0]//self.batch_sz
 
-		for k in tqdm(range(self.k_epochs)):
+		for k in range(self.k_epochs):
 
 			for b in range(num_batches):
 
 
 				# calculate values and policy
-				pi, v = self.actor.forward(s)
+				pi, v = self.actor.forward(s[b*self.batch_sz:(b+1)*self.batch_sz])
 				
-				pi_loss = self.pi_loss(self,
-					pi[b*self.batch_sz:(b+1)*self.batch_sz],
+				pi_loss = self.pi_loss(
+					pi,
 					a[b*self.batch_sz:(b+1)*self.batch_sz],
 					k_lp[b*self.batch_sz:(b+1)*self.batch_sz],
 					adv[b*self.batch_sz:(b+1)*self.batch_sz]
 					)
 
-				v_loss = torch.nn.MSELoss(
-					v[b*self.batch_sz:(b+1)*self.batch_sz],
+				v_loss = self.value_loss(
+					v,
 					d_r[b*self.batch_sz:(b+1)*self.batch_sz]
 					)
 
-				loss = pi_loss + v_loss
+				loss = -pi_loss + v_loss
 
 				self.optimizer.zero_grad()
 				loss.backward()
 				self.optimizer.step()
 
 		self.buffer.clear()
+
+		del s
+		del a
+		del k_lp
+		del d_r
+		del adv
 
 	def get_rewards(self):
 		return self.buffer.mean_reward

@@ -127,10 +127,10 @@ class ActorCritic(torch.nn.Module):
 		out = self.l1(out)
 		out = self.leaky_relu(out)
 		out = self.l2(out)
-		out = self.leaky_relu(out)
+		out = self.relu(out)
 
 
-		pi = self.pi(out)
+		pi = self.pi(out)#.to(torch.device('cpu:0'))
 		pi = self.softmax(pi).to(torch.device('cpu:0'))
 
 		v = self.value(out).to(torch.device('cpu:0'))
@@ -160,7 +160,7 @@ def main():
 	x = torch.ones(10, 3, 64, 64)
 
 	y = block(x)
-	print(y.shape)
+	print(y[0].shape)
 
 if __name__ == "__main__":
 	main()

@@ -7,6 +7,7 @@ import gym3
 from procgen import ProcgenGym3Env
 import time
 from matplotlib import pyplot as plt
+import copy
 
 from modules import *
 from utils import *
@@ -45,6 +46,7 @@ def train(agent, env, n_steps, update_step):
 		if step % update_step == 0 and step!=0:
 			agent.update()
 
+
 def run_experiment(
 	experiment_name,
 	environment_name,
@@ -60,6 +62,7 @@ def run_experiment(
 	actor_lr,
 	gamma,
 	k_epochs,
+	update_steps,
 ):
 
 	exp_path = create_exp_dir(experiment_name)
@@ -82,8 +85,11 @@ def run_experiment(
 			start_level=2,
 			)
 
-	train(agent, env, n_steps, 10)
-	generate_graphs(agent, exp_path)
+	train(agent, env, n_steps, update_steps)
+	#generate_graphs(agent, exp_path)
+
+	plt.plot(agent.buffer.mean_reward)
+	plt.show()
 
 
 if __name__ == '__main__':
@@ -101,16 +107,17 @@ if __name__ == '__main__':
 	# training params
 	parser.add_argument('--random_seeds', default=list(range(10)), type=list)
 	parser.add_argument('--n_episodes', default=2, type=int)
-	parser.add_argument('--n_steps', default=100, type=int)
+	parser.add_argument('--n_steps', default=10000, type=int)
 	parser.add_argument('--batch_sz', default=64, type=int)
-	parser.add_argument('--gamma', default=0.999, type=float)
-	parser.add_argument('--k_epochs', default=10, type=int)
-	parser.add_argument('--n_envs', default=3, type=int)
+	parser.add_argument('--gamma', default=0.99, type=float)
+	parser.add_argument('--k_epochs', default=5, type=int)
+	parser.add_argument('--n_envs', default=8, type=int)
+	parser.add_argument('--update_steps', default=1000, type=int)
 
 	# model params
-	parser.add_argument('--actor_lr', default=2e-1, type=float)
-	parser.add_argument('--critic_lr', default=2e-1, type=float)
-	parser.add_argument('--epsilon', default=0.3, type=float)
+	parser.add_argument('--actor_lr', default=5e-4, type=float)
+	parser.add_argument('--critic_lr', default=5e-4, type=float)
+	parser.add_argument('--epsilon', default=0.2, type=float)
 
 	params = parser.parse_args()
 
@@ -129,4 +136,5 @@ if __name__ == '__main__':
 		actor_lr=params.actor_lr,
 		gamma=params.gamma,
 		k_epochs=params.k_epochs,
+		update_steps=params.update_steps
 	)

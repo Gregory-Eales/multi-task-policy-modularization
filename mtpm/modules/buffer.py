@@ -50,24 +50,27 @@ class Buffer(object):
 
 	def clear(self):
 
-		#self.mean_reward.append(np.mean(self.disc_rewards).tolist())
+		self.mean_reward.append(
+			torch.sum(self.disc_rewards)/torch.sum(torch.Tensor(self.firsts).float()))
 
+		self.actions = []
 		self.log_probs = []
 		self.k_log_probs = []
 		self.states = []
 		self.prev_states = []
 		self.rewards = []
 		self.disc_rewards = []
-		self.advantages = []
+		self.advantages = None
+		self.values = []
 		self.firsts = []
 
 	def get(self):
 
 		states = torch.Tensor(self.states).reshape(-1, 3, 64, 64)
-		#prev_states = torch.Tensor(self.prev_states).reshape(-1, 3, 64, 64)
 		actions = torch.cat(self.actions).reshape(-1, 1)
 		k_log_probs = torch.cat(self.k_log_probs).reshape(-1, 1)
-		disc_rewards = torch.Tensor(self.disc_rewards).reshape(-1, 1)
+
+		disc_rewards = self.disc_rewards
 		adv = self.advantages
 
 		return states, actions, k_log_probs, disc_rewards, adv
