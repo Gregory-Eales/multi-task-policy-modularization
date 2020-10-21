@@ -46,6 +46,45 @@ def train(agent, env, n_steps, update_step):
 		if step % update_step == 0 and step!=0:
 			agent.update()
 
+def train_single(agent, env, n_steps, update_step):
+
+
+	_, prev_state, prev_first = env.observe()
+
+	for step in tqdm(range(n_steps)):
+
+		
+		action = agent.act(prev_state)
+		env.act(action)
+
+		reward, state, first = env.observe()
+
+		agent.store(prev_state, reward, prev_first)	
+
+		prev_state = state
+		prev_first = first
+
+		if step % update_step == 0 and step!=0:
+			agent.update()
+
+def train_single_raw(agent, env, n_steps, update_step):
+
+
+	for step in tqdm(range(n_steps)):
+
+		
+		
+
+		reward, state, first = env.observe()
+
+		action = agent.act(state)
+		env.act(action)
+
+		agent.store(state, reward, first)	
+
+		if step % update_step == 0 and step!=0:
+			agent.update()
+
 
 def run_experiment(
 	experiment_name,
@@ -67,6 +106,13 @@ def run_experiment(
 
 	exp_path = create_exp_dir(experiment_name)
 
+	seed = 666
+
+	torch.manual_seed(seed)
+	np.random.seed(seed)
+	random.seed(seed)
+	
+
 	agent = PPO(
 		actor_lr=actor_lr,
 		critic_lr=critic_lr,
@@ -76,6 +122,16 @@ def run_experiment(
 		k_epochs=k_epochs,
 	)
 
+
+	env = gym3.vectorize_gym(
+		num=n_envs,
+		env_kwargs={"id": "CartPole-v0"},
+		seed=seed
+		)
+
+	train_single(agent, env, n_steps, update_steps)
+	
+	"""
 	env = ProcgenGym3Env(
 			num=n_envs,
 			env_name="coinrun",
@@ -84,8 +140,10 @@ def run_experiment(
 			num_levels=1,
 			start_level=2,
 			)
-
+	
+	
 	train(agent, env, n_steps, update_steps)
+	"""
 	#generate_graphs(agent, exp_path)
 
 	plt.plot(agent.buffer.mean_reward)
@@ -107,16 +165,16 @@ if __name__ == '__main__':
 	# training params
 	parser.add_argument('--random_seeds', default=list(range(10)), type=list)
 	parser.add_argument('--n_episodes', default=2, type=int)
-	parser.add_argument('--n_steps', default=10000, type=int)
-	parser.add_argument('--batch_sz', default=64, type=int)
+	parser.add_argument('--n_steps', default=200000, type=int)
+	parser.add_argument('--batch_sz', default=2000, type=int)
 	parser.add_argument('--gamma', default=0.99, type=float)
-	parser.add_argument('--k_epochs', default=5, type=int)
-	parser.add_argument('--n_envs', default=8, type=int)
-	parser.add_argument('--update_steps', default=1000, type=int)
+	parser.add_argument('--k_epochs', default=4, type=int)
+	parser.add_argument('--n_envs', default=1, type=int)
+	parser.add_argument('--update_steps', default=600, type=int)
 
 	# model params
-	parser.add_argument('--actor_lr', default=5e-4, type=float)
-	parser.add_argument('--critic_lr', default=5e-4, type=float)
+	parser.add_argument('--actor_lr', default=0.02, type=float)
+	parser.add_argument('--critic_lr', default=0.02, type=float)
 	parser.add_argument('--epsilon', default=0.2, type=float)
 
 	params = parser.parse_args()

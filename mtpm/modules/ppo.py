@@ -4,9 +4,10 @@ import numpy as np
 import random
 import gym3
 from matplotlib import pyplot as plt
+import time
 
 
-from .actor_critic import ActorCritic
+from .actor_critic_small import ActorCritic
 from .buffer import Buffer
 
 
@@ -52,7 +53,8 @@ class PPO(object):
 
 		self.optimizer = torch.optim.Adam(
 			params=self.actor.parameters(),
-			lr=actor_lr
+			lr=actor_lr,
+			betas=(0.9, 0.999)
 			)
 
 		self.buffer = Buffer()
@@ -61,61 +63,75 @@ class PPO(object):
 
 	def act(self, s):
 
+
+
 		with torch.no_grad():
 
-			s = torch.tensor(s).reshape(-1, 3, 64, 64).float()
+			if len(s.shape) > 3:
+				s = torch.tensor(s).reshape(-1, 3, 64, 64).float()
 
-			pi, v = self.actor.forward(s)
+			else:
+				s = torch.tensor(s).float()
 
+			pi, v = self.k_actor.forward(s)
 			self.buffer.store_values(v.detach())
-
-
-			action_probabilities = torch.distributions.Categorical(pi)
+			a_p = torch.distributions.Categorical(pi)
 			
+			actions = a_p.sample()
 
-			actions = action_probabilities.sample()
+			self.buffer.store_actions(actions.float())
 
-			self.buffer.store_actions(actions)
-
-			k_p, k_v = self.k_actor(s)
-			k_ap = torch.distributions.Categorical(k_p)
-			k_log_prob = k_ap.log_prob(actions.detach())
+			
+			k_log_prob = a_p.log_prob(actions.detach())
 
 			self.buffer.store_k_log_probs(k_log_prob.detach())
 
 			return actions.detach().numpy()
 
-	def pi_loss(self, pi, actions, k_log_probs, advantages):
+	def normalize(self, tensor):
+		return (tensor - tensor.mean()/(torch.std(tensor))+1e-3)
 
-		action_probabilities = torch.distributions.Categorical(pi)
-		log_probs = action_probabilities.log_prob(actions)
+	def pi_loss(self, pi, actions, k_log_probs, reward, values, adv):
 
-		r_theta = torch.exp(log_probs-k_log_probs)
+		e = self.epsilon
 
-		clipped_r = torch.clamp(
-			r_theta,
-			1.0 - self.epsilon,
-			1.0 + self.epsilon
-			)
+		advantages = reward - values.detach()
 
-		return torch.mean(torch.min(r_theta*advantages, clipped_r*advantages))
+		a_p = torch.distributions.Categorical(pi)
+		log_probs = a_p.log_prob(actions)
+
+		r_theta = torch.exp(log_probs-k_log_probs.detach())
+
+		s1 = r_theta * advantages
+		s2 = torch.clamp(r_theta, 1-e, 1+e)*advantages
+
+		pi_loss = -torch.min(s1, s2) - 0.01*a_p.entropy()
+
+		return pi_loss.mean()
 
 	def discount_rewards(self):
 
-		v = torch.cat(self.buffer.values, dim=1).reshape(-1, 1)
+		v = torch.stack(self.buffer.values, dim=1).reshape(-1, 1)
 		adv = torch.clone(v)
 
-		f = torch.Tensor(self.buffer.firsts).reshape(-1, 1).float()
-		r = torch.Tensor(self.buffer.rewards).reshape(-1, 1)
+		f = torch.stack(self.buffer.firsts, dim=1).reshape(-1, 1).float()
+		r = torch.stack(self.buffer.rewards, dim=1).reshape(-1, 1).float()
 
+		
 
+		"""
+		plt.clf()
+		plt.plot(r, label="rewards")
+		
+		#print(f.shape)
+		"""
 		for i in reversed(range(r.shape[0]-1)):
 
 			
 
-			r[i] = r[i+1]*self.gamma*(1-f[i+1]) + (f[i+1]*r[i])
+			r[i] = r[i] + (r[i+1]*self.gamma)*(1-f[i+1])
 
-			adv[i] = self.gamma*r[i] - v[i]
+			adv[i] = r[i] + v[i+1] - v[i]
 
 			"""
 			delta = r[i] + self.gamma*values[i+1] - values[i]
@@ -123,9 +139,17 @@ class PPO(object):
 			"""
 
 		
-		plt.plot(adv)
-		plt.plot(r)
+		
+		#plt.plot(f*100)
+		#plt.plot(adv, label="advantage")
+		#plt.plot(r, label="discounted reward")
+		"""
+		plt.legend()
 		plt.show()
+		plt.pause(5)
+		"""
+		r = self.normalize(r)
+		
 
 		self.buffer.disc_rewards = r
 		self.buffer.advantages = adv
@@ -146,13 +170,19 @@ class PPO(object):
 		self.discount_rewards()
 	
 		s, a, k_lp, d_r, adv = self.buffer.get()
-		s, a, k_lp, d_r, adv = self.shuffle(s, a, k_lp, d_r, adv)
+		#s, a, k_lp, d_r, adv = self.shuffle(s, a, k_lp, d_r, adv)
 
-		self.transfer_weights()
+
+		#s = self.normalize(s)
+
+		
 
 		num_batches = s.shape[0]//self.batch_sz
 
 		for k in range(self.k_epochs):
+
+
+			"""
 
 			for b in range(num_batches):
 
@@ -164,20 +194,38 @@ class PPO(object):
 					pi,
 					a[b*self.batch_sz:(b+1)*self.batch_sz],
 					k_lp[b*self.batch_sz:(b+1)*self.batch_sz],
+					d_r[b*self.batch_sz:(b+1)*self.batch_sz],
+					v.detach(),
 					adv[b*self.batch_sz:(b+1)*self.batch_sz]
 					)
+
 
 				v_loss = self.value_loss(
 					v,
 					d_r[b*self.batch_sz:(b+1)*self.batch_sz]
 					)
 
-				loss = -pi_loss + v_loss
+				loss = pi_loss + 0.5*v_loss
 
 				self.optimizer.zero_grad()
 				loss.backward()
 				self.optimizer.step()
 
+			"""
+
+			pi, v = self.actor.forward(s)
+				
+			pi_loss = self.pi_loss(pi, a, k_lp, d_r, v.detach(), adv)
+
+			v_loss = self.value_loss(v, d_r)
+
+			loss = pi_loss + 0.5*v_loss
+
+			self.optimizer.zero_grad()
+			loss.backward()
+			self.optimizer.step()
+
+		self.transfer_weights()
 		self.buffer.clear()
 
 		del s
