@@ -13,24 +13,25 @@ class ActorCritic(torch.nn.Module):
 		self.to(self.device)
 
 	def normalize(self, tensor):
-		return (tensor - tensor.mean()/(torch.std(tensor))+1e-3)
+		return (tensor - tensor.mean()) / ((torch.std(tensor))+1e-5)
 
 	def define_network(self):
 		self.relu = torch.nn.LeakyReLU()
 		self.leaky_relu = torch.nn.LeakyReLU()
 		self.sigmoid = torch.nn.Sigmoid()
 		self.tanh = torch.nn.Tanh()
-		self.softmax = torch.nn.Softmax(dim=1)
+		self.softmax = torch.nn.Softmax(dim=-1)
 
+		size = 64
 
-		self.p1 = torch.nn.Linear(4, 64)
-		self.p2 = torch.nn.Linear(64, 64)
+		self.p1 = torch.nn.Linear(4, size)
+		self.p2 = torch.nn.Linear(size, size)
 
-		self.v1 = torch.nn.Linear(4, 64)
-		self.v2 = torch.nn.Linear(64, 64)
+		self.v1 = torch.nn.Linear(4, size)
+		self.v2 = torch.nn.Linear(size, size)
 
-		self.pi = torch.nn.Linear(64, 2)
-		self.value = torch.nn.Linear(64, 1)
+		self.pi = torch.nn.Linear(size, 2)
+		self.value = torch.nn.Linear(size, 1)
 
 
 		self.critic_loss = torch.nn.MSELoss()
@@ -41,20 +42,21 @@ class ActorCritic(torch.nn.Module):
 
 		out = torch.Tensor(x).float().to(self.device)
 
-		#out = self.normalize(out)
-
 		p = self.p1(out)
-		p = self.relu(p)
+		p = self.tanh(p)
+
 		p = self.p2(p)
-		p = self.relu(p)
+		p = self.tanh(p)
+
 		p = self.pi(p)
 		pi = self.softmax(p).to(torch.device('cpu:0'))
 
 
 		v = self.v1(out)
-		v = self.relu(v)
+		v = self.tanh(v)
 		v = self.v2(v)
-		v = self.relu(v)
+		v = self.tanh(v)
+
 		v = self.value(v).to(torch.device('cpu:0'))
 
 		return pi, v

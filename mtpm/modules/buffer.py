@@ -21,6 +21,7 @@ class Buffer(object):
 		self.mean_reward = []
 		self.mean_episode_length = []
 
+
 		plt.ion()
 		
 		self.figure = plt.figure()
@@ -98,18 +99,23 @@ class Buffer(object):
 		self.firsts = []
 
 	def get(self):
-
+	
 		if len(self.states[0].shape) > 3:
 				states = torch.stack(self.states, dim=1).reshape(-1, 3, 64, 64)
 		
 		else:
 			states = torch.cat(self.states, dim=1).reshape(-1, 4)  
 		
-
 		actions = torch.stack(self.actions, dim=1).reshape(-1, 1)
+
 		k_log_probs = torch.stack(self.k_log_probs, dim=1).reshape(-1, 1)
+	
+		"""
+		states = torch.stack(self.states).reshape(-1, 8)
+		actions = torch.stack(self.actions).reshape(-1, 1)
+		k_log_probs = torch.stack(self.k_log_probs).reshape(-1, 1)
+		"""
 
 		disc_rewards = self.disc_rewards
-		adv = self.advantages
 
-		return states, actions, k_log_probs, disc_rewards, adv
+		return states, actions, k_log_probs, disc_rewards

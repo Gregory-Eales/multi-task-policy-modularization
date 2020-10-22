@@ -48,7 +48,6 @@ def train(agent, env, n_steps, update_step):
 
 def train_single(agent, env, n_steps, update_step):
 
-
 	_, prev_state, prev_first = env.observe()
 
 	for step in tqdm(range(n_steps)):
@@ -71,9 +70,6 @@ def train_single_raw(agent, env, n_steps, update_step):
 
 
 	for step in tqdm(range(n_steps)):
-
-		
-		
 
 		reward, state, first = env.observe()
 
@@ -108,6 +104,7 @@ def run_experiment(
 
 	seed = 666
 
+	
 	torch.manual_seed(seed)
 	np.random.seed(seed)
 	random.seed(seed)
@@ -146,9 +143,6 @@ def run_experiment(
 	"""
 	#generate_graphs(agent, exp_path)
 
-	plt.plot(agent.buffer.mean_reward)
-	plt.show()
-
 
 if __name__ == '__main__':
 
@@ -166,15 +160,15 @@ if __name__ == '__main__':
 	parser.add_argument('--random_seeds', default=list(range(10)), type=list)
 	parser.add_argument('--n_episodes', default=2, type=int)
 	parser.add_argument('--n_steps', default=200000, type=int)
-	parser.add_argument('--batch_sz', default=2000, type=int)
+	parser.add_argument('--batch_sz', default=64, type=int)
 	parser.add_argument('--gamma', default=0.99, type=float)
 	parser.add_argument('--k_epochs', default=4, type=int)
 	parser.add_argument('--n_envs', default=1, type=int)
-	parser.add_argument('--update_steps', default=600, type=int)
+	parser.add_argument('--update_steps', default=2000, type=int)
 
 	# model params
-	parser.add_argument('--actor_lr', default=0.02, type=float)
-	parser.add_argument('--critic_lr', default=0.02, type=float)
+	parser.add_argument('--actor_lr', default=0.002, type=float)
+	parser.add_argument('--critic_lr', default=0.002, type=float)
 	parser.add_argument('--epsilon', default=0.2, type=float)
 
 	params = parser.parse_args()
