@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import time
 
 
-from .actor_critic_small import ActorCritic
+from .actor_critic import ActorCritic
 from .buffer import Buffer
 
 

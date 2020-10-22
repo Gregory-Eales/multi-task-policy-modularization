@@ -119,7 +119,7 @@ def run_experiment(
 		k_epochs=k_epochs,
 	)
 
-
+	"""
 	env = gym3.vectorize_gym(
 		num=n_envs,
 		env_kwargs={"id": "CartPole-v0"},
@@ -127,8 +127,8 @@ def run_experiment(
 		)
 
 	train_single(agent, env, n_steps, update_steps)
-	
 	"""
+	
 	env = ProcgenGym3Env(
 			num=n_envs,
 			env_name="coinrun",
@@ -140,7 +140,7 @@ def run_experiment(
 	
 	
 	train(agent, env, n_steps, update_steps)
-	"""
+	
 	#generate_graphs(agent, exp_path)
 
 
@@ -164,7 +164,7 @@ if __name__ == '__main__':
 	parser.add_argument('--gamma', default=0.99, type=float)
 	parser.add_argument('--k_epochs', default=4, type=int)
 	parser.add_argument('--n_envs', default=1, type=int)
-	parser.add_argument('--update_steps', default=2000, type=int)
+	parser.add_argument('--update_steps', default=500, type=int)
 
 	# model params
 	parser.add_argument('--actor_lr', default=0.002, type=float)

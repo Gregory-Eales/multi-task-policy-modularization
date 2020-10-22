@@ -42,7 +42,8 @@ class Buffer(object):
 		plt.xlabel("Steps")
 		plt.ylabel("Reward")
 		plt.plot(steps, self.mean_reward, label="reward")
-		plt.plot(steps, self.mean_episode_length, label="mean_episode_length")
+		print(self.mean_reward)
+		#plt.plot(steps, self.mean_episode_length, label="mean_episode_length")
 		plt.legend()
 		plt.pause(0.01)
 
