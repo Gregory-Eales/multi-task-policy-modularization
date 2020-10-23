@@ -1,10 +1,10 @@
 import torch
 import os
 
-def save_model(model, name="model_params"):
+def save_model(model, env_name="", path=""):
     torch.save(model.state_dict(), "{}.pt".format(name))
 
-def create_exp_dir(experiment_name):
+def create_exp_dir(experiment_name="default"):
 
     exp_path = "experiments/{}".format(experiment_name)
 

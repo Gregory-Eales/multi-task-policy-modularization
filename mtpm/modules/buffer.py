@@ -33,17 +33,14 @@ class Buffer(object):
 		
 
 	def plot_reward(self):
-		#self.plot.clear()
 		num_steps = len(self.mean_reward)
-
 		steps = np.linspace(0, len(self.states)*num_steps, num=num_steps)
 		plt.clf()
 		plt.title("Mean Reward")
 		plt.xlabel("Steps")
 		plt.ylabel("Reward")
 		plt.plot(steps, self.mean_reward, label="reward")
-		print(self.mean_reward)
-		#plt.plot(steps, self.mean_episode_length, label="mean_episode_length")
+		plt.plot(steps, self.mean_episode_length, label="mean_episode_length")
 		plt.legend()
 		plt.pause(0.01)
 
@@ -51,6 +48,10 @@ class Buffer(object):
 		self.store_state(state)
 		self.store_reward(reward)
 		self.store_firsts(first)
+
+	def store_act(self, actions, log_probs):
+		self.store_actions(actions)
+		self.store_k_log_probs(log_probs)
 
 	def store_prev_states(self, prev_state):
 		self.prev_states.append(torch.Tensor(prev_state))

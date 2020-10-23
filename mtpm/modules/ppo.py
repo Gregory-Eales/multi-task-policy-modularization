@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import time
 
 
-from .actor_critic import ActorCritic
+from .actor_critic_small import ActorCritic
 from .buffer import Buffer
 
 
@@ -75,57 +75,27 @@ class PPO(object):
 				pass
 
 			pi, v = self.k_actor.forward(s)
-
 			a_p = torch.distributions.Categorical(pi)
-			
-			actions = a_p.sample()
+			a = a_p.sample()
+			l_p = a_p.log_prob(a.detach())
 
-			self.buffer.store_actions(actions.float())
+			self.buffer.store_act(a, l_p)
 
-			k_log_prob = a_p.log_prob(actions.detach())
-
-			#print(k_log_prob.shape)
-
-			self.buffer.store_k_log_probs(k_log_prob.detach())
-
-			return actions.detach().numpy()
+			return a.detach().numpy()
 
 	def normalize(self, tensor):
 		return (tensor - tensor.mean()) / ((torch.std(tensor))+1e-5)
 
 	def pi_loss(self, pi, actions, k_log_probs, reward, values):
 
-		
 		e = self.epsilon
-
 		adv = reward - values.detach()
-
-		
-
 		dist = Categorical(pi)
 		log_probs = dist.log_prob(actions.reshape(-1))
-
-		
 		r_theta = torch.exp(log_probs.reshape(-1, 1) - k_log_probs.detach())
-
-		
-
 		s1 = r_theta * adv
 		s2 = torch.clamp(r_theta, 1-e, 1+e)*adv
-
-		
-
 		pi_loss = -torch.min(s1, s2) - 0.01*dist.entropy().reshape(-1, 1)
-
-		"""
-		print(pi.shape, actions.shape, k_log_probs.shape, reward.shape, values.shape)
-		print("adv:", adv.shape)
-		print("log+prob:", log_probs.shape)
-		print("r_theta:", r_theta.shape)
-		print("s1, s2:", s1.shape, s2.shape)
-		print("dist entropy", dist.entropy().shape)
-		print(pi_loss.shape)
-		"""
 
 		return pi_loss
 
@@ -139,13 +109,6 @@ class PPO(object):
 			r[i] = r[i] + (r[i+1]*self.gamma)*(1-f[i+1])
 
 		self.buffer.disc_rewards = self.normalize(r)
-
-		"""
-		plt.clf()
-		plt.plot(self.normalize(r))
-		plt.show()
-		plt.pause(5)
-		"""
 		
 
 	def transfer_weights(self):
@@ -166,13 +129,6 @@ class PPO(object):
 		s, a, k_lp, d_r = self.buffer.get()
 		s, a, k_lp, d_r= self.shuffle(s, a, k_lp, d_r)
 
-		"""
-		print(s.shape)
-		print(a.shape)
-		print(k_lp.shape)
-		print(d_r.shape)
-		"""
-	
 		num_batches = s.shape[0]//self.batch_sz
 		sz = self.batch_sz
 
@@ -201,45 +157,15 @@ class PPO(object):
 				self.optimizer.step()
 				self.optimizer.zero_grad()
 
-
-			"""
-			pi, v = self.actor.forward(s)
-				
-			pi_loss = self.pi_loss(pi, a, k_lp, d_r, v)
-
-			v_loss = self.value_loss(v, d_r)
-
-			loss = (pi_loss + 0.5*v_loss).mean()
-
-			self.optimizer.zero_grad()
-			loss.backward()
-			self.optimizer.step()
-			"""
-
 		self.transfer_weights()
 		self.buffer.clear()
-
-		del s
-		del a
-		del k_lp
-		del d_r
 
 	def get_rewards(self):
 		return self.buffer.mean_reward
 		
 
 def main():
-
-	x1 = torch.ones(1, 10)
-	x2 = torch.ones(1, 1)
-
-	y = torch.clone(x1)
-
-	y[0][0] = 0
-
-	print(x1)
-
-	#print(torch.cat([x1, x2], dim=1).shape)
+	pass
 
 if __name__ == "__main__":
 	main()
