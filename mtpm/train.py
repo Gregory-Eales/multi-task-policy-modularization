@@ -25,15 +25,23 @@ TO DO:
 ########################################
 """
 
-
-
 if __name__ == '__main__':
 
 	parser = ArgumentParser(add_help=False)
 
 	# experiment and  environment
 	parser.add_argument('--experiment_name', default="CartPole-Example", type=str)
-	parser.add_argument('--env_names', default=["CartPole-v0"])
+	parser.add_argument('--env_names', default=[
+		"CartPole-v0",
+		"Alien-ramNoFrameskip-v4",
+		"AirRaid-ramNoFrameskip-v4",
+		"Bowling-ramNoFrameskip-v4",
+		"Carnival-ramNoFrameskip-v4",
+		"DemonAttack-ramNoFrameskip-v4"
+		"UpNDown-ramNoFrameskip-v4",
+		"SpaceInvaders-ramNoFrameskip-v4",
+		
+		])
 
 	# saving options
 	parser.add_argument('--log', default=True, type=bool)

@@ -1,6 +1,8 @@
 import gym
 from matplotlib import pyplot as plt
 import gym3
+from procgen import ProcgenGym3Env
+
 
 from .dir import *
 from .seed import *
@@ -18,18 +20,22 @@ def run_experiment(Agent, hparams):
 	for env_name in hparams.env_names:
 		rewards = []
 		for seed in hparams.random_seeds:
-	
+			
+			"""
 			env = gym3.vectorize_gym(
 				num=hparams.n_envs,
 				env_kwargs={"id": "CartPole-v0"},
 				seed=seed
 				)
+			"""
+
+			env = ProcgenGym3Env(num=64, env_name="coinrun", start_level=0, num_levels=1)
 
 			set_seed(seed)
 
 			agent = Agent(hparams)
 
-			r = train(
+			r = train_procgen(
 				agent=agent,
 				env=env,          
 				n_steps=hparams.n_steps,        
