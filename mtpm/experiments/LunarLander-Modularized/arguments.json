@@ -6,7 +6,7 @@
         "LunarLander-v2"
     ],
     "epsilon": 0.2,
-    "experiment_name": "CartPole-Example",
+    "experiment_name": "LunarLander-Modularized",
     "gamma": 0.99,
     "graph": true,
     "k_epochs": 4,
@@ -16,5 +16,5 @@
     "random_seeds": [
         0
     ],
-    "update_step": 600
+    "update_step": 1200
 }

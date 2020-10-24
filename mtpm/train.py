@@ -30,18 +30,8 @@ if __name__ == '__main__':
 	parser = ArgumentParser(add_help=False)
 
 	# experiment and  environment
-	parser.add_argument('--experiment_name', default="CartPole-Example", type=str)
-	parser.add_argument('--env_names', default=[
-		"CartPole-v0",
-		"Alien-ramNoFrameskip-v4",
-		"AirRaid-ramNoFrameskip-v4",
-		"Bowling-ramNoFrameskip-v4",
-		"Carnival-ramNoFrameskip-v4",
-		"DemonAttack-ramNoFrameskip-v4"
-		"UpNDown-ramNoFrameskip-v4",
-		"SpaceInvaders-ramNoFrameskip-v4",
-		
-		])
+	parser.add_argument('--experiment_name', default="LunarLander-Modularized", type=str)
+	parser.add_argument('--env_names', default=["LunarLander-v2",])
 
 	# saving options
 	parser.add_argument('--log', default=True, type=bool)
@@ -49,12 +39,12 @@ if __name__ == '__main__':
 
 	# training params
 	parser.add_argument('--random_seeds', default=list(range(1)), type=list)
-	parser.add_argument('--n_steps', default=1600, type=int)
+	parser.add_argument('--n_steps', default=12000, type=int)
 	parser.add_argument('--batch_sz', default=64, type=int)
 	parser.add_argument('--gamma', default=0.99, type=float)
 	parser.add_argument('--k_epochs', default=4, type=int)
-	parser.add_argument('--n_envs', default=2, type=int)
-	parser.add_argument('--update_step', default=400, type=int)
+	parser.add_argument('--n_envs', default=4, type=int)
+	parser.add_argument('--update_step', default=1200, type=int)
 
 	# model params
 	parser.add_argument('--actor_lr', default=5e-4, type=float)

@@ -40,7 +40,7 @@ class Buffer(object):
 		plt.xlabel("Steps")
 		plt.ylabel("Reward")
 		plt.plot(steps, self.mean_reward, label="reward")
-		plt.plot(steps, self.mean_episode_length, label="mean_episode_length")
+		#plt.plot(steps, self.mean_episode_length, label="mean_episode_length")
 		plt.legend()
 		plt.pause(0.01)
 
@@ -106,7 +106,7 @@ class Buffer(object):
 				states = torch.stack(self.states, dim=1).reshape(-1, 3, 64, 64)
 		
 		else:
-			states = torch.cat(self.states, dim=1).reshape(-1, 4)  
+			states = torch.cat(self.states, dim=1).reshape(-1, 8)  
 		
 		actions = torch.stack(self.actions, dim=1).reshape(-1, 1)
 

@@ -22,15 +22,15 @@ class ActorCritic(torch.nn.Module):
 		self.tanh = torch.nn.Tanh()
 		self.softmax = torch.nn.Softmax(dim=-1)
 
-		size = 256
+		size = 64
 
-		self.p1 = torch.nn.Linear(4, size)
+		self.p1 = torch.nn.Linear(8, size)
 		self.p2 = torch.nn.Linear(size, size)
 
-		self.v1 = torch.nn.Linear(4, size)
+		self.v1 = torch.nn.Linear(8, size)
 		self.v2 = torch.nn.Linear(size, size)
 
-		self.pi = torch.nn.Linear(size, 2)
+		self.pi = torch.nn.Linear(size, 4)
 		self.value = torch.nn.Linear(size, 1)
 
 

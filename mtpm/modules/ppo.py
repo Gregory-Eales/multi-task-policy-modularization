@@ -8,7 +8,8 @@ from matplotlib import pyplot as plt
 import time
 
 
-from .actor_critic import ActorCritic
+from .actor_critic_small import ActorCritic
+from .mptm_ac import ModularizedAC
 from .buffer import Buffer
 
 
@@ -40,8 +41,8 @@ class PPO(object):
 		self.epsilon = hparams.epsilon
 		self.k_epochs = hparams.k_epochs
 
-		self.actor =  ActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
-		self.k_actor = ActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
+		self.actor =  ModularizedAC(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
+		self.k_actor = ModularizedAC(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
 		self.transfer_weights()
 
 		self.optimizer = torch.optim.Adam(

@@ -8,6 +8,8 @@ from tqdm import tqdm
 
 def train_procgen(agent, env, n_steps, update_step):
 
+	env = ProcgenGym3Env(num=64, env_name="coinrun", start_level=0, num_levels=1)
+
 	_, prev_state, prev_first = env.observe()
 
 	for step in tqdm(range(n_steps)):

@@ -20,22 +20,20 @@ def run_experiment(Agent, hparams):
 	for env_name in hparams.env_names:
 		rewards = []
 		for seed in hparams.random_seeds:
-			
-			"""
+
+
 			env = gym3.vectorize_gym(
 				num=hparams.n_envs,
-				env_kwargs={"id": "CartPole-v0"},
+				env_kwargs={"id": env_name},
 				seed=seed
 				)
-			"""
-
-			env = ProcgenGym3Env(num=64, env_name="coinrun", start_level=0, num_levels=1)
+			
 
 			set_seed(seed)
 
 			agent = Agent(hparams)
 
-			r = train_procgen(
+			r = train(
 				agent=agent,
 				env=env,          
 				n_steps=hparams.n_steps,        

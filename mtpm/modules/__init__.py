@@ -4,3 +4,4 @@ from .buffer import *
 from .ppo import *
 from .trainer import *
 from .actor_critic import *
+from .mptm_ac import *

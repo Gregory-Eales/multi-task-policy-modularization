@@ -4,16 +4,23 @@ from torch import nn
 
 class LinearModule(torch.nn.Module):
 
-	def __init__(self, dim, n_layers):
+	def __init__(self, in_dim, h_dim, n_layers):
 
 		super(LinearModule, self).__init__()
 	
 		self.layers = torch.nn.ModuleList()
 
-		for i in range(n_layers):
+		self.layers.append(
+				nn.Sequential(
+					nn.Linear(in_dim, h_dim),
+					nn.LeakyReLU()
+					)
+				)
+
+		for i in range(n_layers-1):
 			self.layers.append(
 				nn.Sequential(
-					nn.Linear(dim, dim),
+					nn.Linear(h_dim, h_dim),
 					nn.LeakyReLU()
 					)
 				)
@@ -27,19 +34,31 @@ class LinearModule(torch.nn.Module):
 
 class ModularizedLayer(torch.nn.Module):
 
-	def __init__(self, num_modules, dim, n_layers):
+	def __init__(self, n_modules, in_dim, h_dim, n_layers):
 
 		super(ModularizedLayer, self).__init__()
 		
-			self.layers = torch.nn.ModuleList()
+		self.mod_layers = torch.nn.ModuleList()
 
+
+		for i in range(n_modules):
+			self.mod_layers.append(LinearModule(in_dim, h_dim, n_layers))
+
+	def forward(self, x):
+
+		outs = []
+
+		for m in self.mod_layers:
+			outs.append(m(x))
+
+		return torch.cat(outs, dim=1)
 
 
 class ModularizedAC(torch.nn.Module):
 
 	def __init__(self, actor_lr, epsilon):
 
-		super(ActorCritic, self).__init__()
+		super(ModularizedAC, self).__init__()
 
 		self.epsilon = epsilon
 		self.define_network()
@@ -56,13 +75,14 @@ class ModularizedAC(torch.nn.Module):
 		self.tanh = torch.nn.Tanh()
 		self.softmax = torch.nn.Softmax(dim=-1)
 
-		size = 256
+		size = 64
 
-		self.p1 = torch.nn.Linear(4, size)
-		self.p2 = torch.nn.Linear(size, size)
+		self.m1 = ModularizedLayer(2, 8, 32, 3)
+		self.m2 = ModularizedLayer(2, 64, 32, 3)
 
-		self.v1 = torch.nn.Linear(4, size)
-		self.v2 = torch.nn.Linear(size, size)
+		self.v1 = torch.nn.Linear(size, size)
+		self.p1 = torch.nn.Linear(size, size)
+			
 
 		self.pi = torch.nn.Linear(size, 2)
 		self.value = torch.nn.Linear(size, 1)
@@ -78,16 +98,17 @@ class ModularizedAC(torch.nn.Module):
 		"""
 		This is where modularization goes
 		"""
-		module_outs = []
-
-
-
-		"""
+		out = self.m1(out)
+		out = self.m2(out)
 
 		"""
+
+		"""
+		p = self.p1(out)
 		p = self.pi(p)
 		pi = self.softmax(p).to(torch.device('cpu:0'))
 
+		v = self.v1(out)
 		v = self.value(v).to(torch.device('cpu:0'))
 
 		return pi, v
@@ -95,11 +116,29 @@ class ModularizedAC(torch.nn.Module):
 
 def main():
 
-	lin = LinearModule(10, 20)
+	l1 = LinearModule(5, 1, 2)
+	l2 = LinearModule(5, 1, 2)
+	l3 = LinearModule(5, 1, 2)
+	l4 = LinearModule(5, 1, 2)
+	l5 = LinearModule(5, 1, 2)
 
-	x = torch.ones(100, 10)
+	x = torch.ones(10, 5)
+	print(l1(x).shape)
 
-	print(lin(x).shape)
+	
+	out = torch.cat(
+		[
+		l1(x),
+		l2(x),
+		l3(x),
+		l4(x),
+		l5(x),
+		],
+		dim=1
+		)
+
+	
+	print(out.shape)
 
 if __name__ == "__main__":
 	main()
