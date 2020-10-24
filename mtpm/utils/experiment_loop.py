@@ -1,6 +1,6 @@
 import gym
 from matplotlib import pyplot as plt
-
+import gym3
 
 from .dir import *
 from .seed import *
@@ -8,86 +8,53 @@ from .train_loop import *
 from .graph import *
 from .data import *
 
-def run_experiment(
-	experiment_name,
-	agent_class,
-	train_fn,
-	env_names,
-	log,
-	graph,
-	random_seeds,
-	n_episodes,
-	n_steps,
-	n_envs,
-	epsilon,
-	batch_sz,
-	lr,
-	gamma,
-	critic_epochs,
-	n_latent_var,           
-	k_epochs,
-	max_episodes,               
-	update_episodes,
-	args,              
-):
+def run_experiment(Agent, hparams):
 
-	# 1. create experiment directory
-	# 2. run experiments
-	# 3. save csv file with data for each run
-	# 4. save graphs for experiments
-	# 5. 
 	
 	# create the path for the experiment
-	exp_path = create_exp_dir(experiment_name)
+	exp_path = create_exp_dir(hparams.experiment_name)
 
-	#rewards = []
-	# run a training loop for each seed
 
-	for env_name in env_names:
+	for env_name in hparams.env_names:
 		rewards = []
-		for seed in random_seeds:
+		for seed in hparams.random_seeds:
 	
-			env = gym.make(env_name)
-
-			state_dim = env.observation_space.shape[0]
-			action_dim = env.action_space.n
-
-			set_seed(env, seed)
-
-			agent = agent_class(
-				state_dim,
-				action_dim,
-				n_latent_var=n_latent_var,
-				lr=lr,
-				gamma=gamma,
-				k_epochs=k_epochs,
-				epsilon=epsilon
+			env = gym3.vectorize_gym(
+				num=hparams.n_envs,
+				env_kwargs={"id": "CartPole-v0"},
+				seed=seed
 				)
+
+			set_seed(seed)
+
+			agent = Agent(hparams)
 
 			r = train(
 				agent=agent,
 				env=env,          
-				max_episodes = max_episodes,        
-				update_episodes = update_episodes,    
+				n_steps=hparams.n_steps,        
+				update_step=hparams.update_step,    
 				)
 
 			rewards.append(r)
 
 		plot_rewards(
 			rewards,
+			hparams.update_step,
 			path=exp_path,
 			env_name=env_name
 			)
 
 		save_results(
 			env_name=env_name,
-			seeds=random_seeds,
 			rewards=rewards,
-			update_episodes=update_episodes,
-			path=exp_path
+			path=exp_path,
+			update_steps=hparams.update_step,
+			seeds=hparams.random_seeds
 			)
 
-		save_arguments(path=exp_path, args=args)
+
+		save_arguments(path=exp_path, args=hparams)
 
 def main():
 	pass

@@ -9,28 +9,33 @@ def generate_graphs(agent, path=None, env_name=None):
 
 
 
-def plot_rewards(rewards, path=None, env_name=""):
+def plot_rewards(rewards, update_steps, path=None, env_name=""):
+
+
+	plt.clf()
 
 	rewards = np.array([np.array(r) for r in rewards])
+
+	mean_rewards = rewards.mean(axis=0)
 
 
 	print(rewards.shape)
 
-	mean_rewards = rewards.mean(axis=0)
-
 	print(mean_rewards.shape)
 
-	plt.plot(mean_rewards, label="mean rewards")
+	steps = np.array(list(range(mean_rewards.shape[0])))*update_steps
+
+	plt.plot(steps, mean_rewards, label="mean rewards")
 
 	plt.fill_between(
-		list(range(rewards.shape[1])),
+		steps,
 		np.amax(rewards, axis=0),
 		np.amin(rewards, axis=0),
 		alpha=0.2
 		)
 
-	plt.title("Reward per Epoch")
-	plt.xlabel("Epoch")
+	plt.title("Rewards per Step")
+	plt.xlabel("Steps")
 	plt.ylabel("Reward")
 	plt.legend(loc="upper left")
 
@@ -46,12 +51,12 @@ def plot_rewards(rewards, path=None, env_name=""):
 
 def reward_per_epoch(rewards, path=None):
 
+	plt.clf()
 	plt.title("Reward per Epoch")
 	plt.xlabel("Epoch")
 	plt.ylabel("Reward")
 	plt.plot(reward, label="reward")
 	plt.legend(loc="upper left")
-
 
 	if path == None:
 		plt.show()

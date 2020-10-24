@@ -1,0 +1,20 @@
+{
+    "actor_lr": 0.0005,
+    "batch_sz": 64,
+    "critic_lr": 0.0005,
+    "env_names": [
+        "CartPole-v0"
+    ],
+    "epsilon": 0.2,
+    "experiment_name": "CartPole-Example",
+    "gamma": 0.99,
+    "graph": true,
+    "k_epochs": 4,
+    "log": true,
+    "n_envs": 2,
+    "n_steps": 1600,
+    "random_seeds": [
+        0
+    ],
+    "update_step": 400
+}

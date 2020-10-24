@@ -31,30 +31,22 @@ class RandomAgent():
 
 class PPO(object):
 
-	def __init__(
-			self,
-			actor_lr,
-			critic_lr,
-			batch_sz,
-			gamma,
-			epsilon,
-			k_epochs,
-	):
+	def __init__(self, hparams):
 
-		self.actor_lr = actor_lr
-		self.critic_lr = critic_lr
-		self.batch_sz = batch_sz
-		self.gamma = gamma
-		self.epsilon = epsilon
-		self.k_epochs = k_epochs
+		self.actor_lr = hparams.actor_lr
+		self.critic_lr = hparams.critic_lr
+		self.batch_sz = hparams.batch_sz
+		self.gamma = hparams.gamma
+		self.epsilon = hparams.epsilon
+		self.k_epochs = hparams.k_epochs
 
-		self.actor =  ActorCritic(actor_lr=actor_lr, epsilon=epsilon)
-		self.k_actor = ActorCritic(actor_lr=actor_lr, epsilon=epsilon)
+		self.actor =  ActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
+		self.k_actor = ActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
 		self.transfer_weights()
 
 		self.optimizer = torch.optim.Adam(
 			params=self.actor.parameters(),
-			lr=actor_lr
+			lr=hparams.actor_lr
 			)
 
 		self.buffer = Buffer()

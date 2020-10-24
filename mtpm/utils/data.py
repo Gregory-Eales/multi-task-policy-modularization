@@ -7,9 +7,11 @@ import json
 
 def save_arguments(path="", args=None):
 
+	print(vars(args))
+
 	if args!=None:
 		file = open("{}/arguments.json".format(path), "w", encoding="utf8")
-		json.dump(vars(args), file)
+		json.dump(vars(args), file, indent=4, sort_keys=True)
 		file.close()
 
 def load_arguments(path=""):
@@ -17,7 +19,7 @@ def load_arguments(path=""):
 	return json.load(file)
 
 
-def save_results(env_name, seeds, rewards, update_episodes, path=""):
+def save_results(env_name, seeds, rewards, update_steps, path=""):
 
 	rewards = np.array([np.array(r) for r in rewards]).T
 
@@ -26,7 +28,7 @@ def save_results(env_name, seeds, rewards, update_episodes, path=""):
 
 	data = pd.DataFrame(rewards, columns=seeds)
 
-	data["Episodes"] = update_episodes*np.array(list(range(rewards.shape[0])))
+	data["Steps"] = update_steps*np.array(list(range(rewards.shape[0])))
 
 	cols = data.columns.tolist()
 	cols = cols[-1:] + cols[:-1]
