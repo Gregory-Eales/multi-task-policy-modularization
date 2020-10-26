@@ -115,7 +115,7 @@ class ActorCritic(torch.nn.Module):
 
 	def forward(self, x):
 
-		out = torch.Tensor(x).float().to(self.device)/255
+		out = torch.Tensor(x.float()).to(self.device)/255
 
 		out = self.block1(out)
 		out = self.block2(out)

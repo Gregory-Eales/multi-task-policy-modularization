@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import time
 
 
-from .actor_critic_small import ActorCritic
+from .actor_critic import ActorCritic
 from .mptm_ac import ModularizedAC
 from .buffer import Buffer
 
@@ -41,8 +41,8 @@ class PPO(object):
 		self.epsilon = hparams.epsilon
 		self.k_epochs = hparams.k_epochs
 
-		self.actor =  ModularizedAC(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
-		self.k_actor = ModularizedAC(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
+		self.actor = ActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
+		self.k_actor = ActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
 		self.transfer_weights()
 
 		self.optimizer = torch.optim.Adam(
@@ -73,6 +73,20 @@ class PPO(object):
 			l_p = a_p.log_prob(a.detach())
 
 			self.buffer.store_act(a, l_p)
+
+			return a.detach().numpy()
+
+	def act_deterministic(self, s):
+
+		with torch.no_grad():
+
+			if len(s.shape) > 3:
+				s = torch.tensor(s).reshape(-1, 3, 64, 64).float()
+
+			pi, v = self.k_actor.forward(s)
+			a_p = torch.distributions.Categorical(pi)
+			a = a_p.sample()
+			l_p = a_p.log_prob(a.detach())
 
 			return a.detach().numpy()
 

@@ -16,8 +16,14 @@ from utils import *
 ########################################
 TO DO:
 
-	- make sure ppo solo works
 	- how to train routing network? (distance clustering?)
+	- classify task using clustering?
+	- ways in which gradients can be modified?
+	- be able to quickly switch between images and vector observation envs
+	- find two similar vector envs for quick iteration speed
+	- add experiment folder already exists warning
+	- add testing loop with non stochastic action
+	- 
 
 	1. train cluster algorithm on latent space
 	2. train agent using clustered feature modularizer
@@ -27,7 +33,8 @@ TO DO:
 
 if __name__ == '__main__':
 
-	parser = ArgumentParser(add_help=False)
+
+	parser = ArgumentParser(add_help=True)
 
 	# experiment and  environment
 	parser.add_argument('--experiment_name', default="LunarLander-Modularized", type=str)
@@ -39,8 +46,8 @@ if __name__ == '__main__':
 
 	# training params
 	parser.add_argument('--random_seeds', default=list(range(1)), type=list)
-	parser.add_argument('--n_steps', default=12000, type=int)
-	parser.add_argument('--batch_sz', default=64, type=int)
+	parser.add_argument('--n_steps', default=25000, type=int)
+	parser.add_argument('--batch_sz', default=128, type=int)
 	parser.add_argument('--gamma', default=0.99, type=float)
 	parser.add_argument('--k_epochs', default=4, type=int)
 	parser.add_argument('--n_envs', default=4, type=int)

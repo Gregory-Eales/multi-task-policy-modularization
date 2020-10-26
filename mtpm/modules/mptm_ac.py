@@ -75,10 +75,10 @@ class ModularizedAC(torch.nn.Module):
 		self.tanh = torch.nn.Tanh()
 		self.softmax = torch.nn.Softmax(dim=-1)
 
-		size = 64
+		size = 128
 
-		self.m1 = ModularizedLayer(2, 8, 32, 3)
-		self.m2 = ModularizedLayer(2, 64, 32, 3)
+		self.m1 = ModularizedLayer(4, 8, 32, 2)
+		self.m2 = ModularizedLayer(4, 128, 32, 2)
 
 		self.v1 = torch.nn.Linear(size, size)
 		self.p1 = torch.nn.Linear(size, size)

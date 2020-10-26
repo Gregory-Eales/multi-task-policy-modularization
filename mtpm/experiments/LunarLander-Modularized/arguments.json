@@ -11,8 +11,8 @@
     "graph": true,
     "k_epochs": 4,
     "log": true,
-    "n_envs": 4,
-    "n_steps": 12000,
+    "n_envs": 8,
+    "n_steps": 24000,
     "random_seeds": [
         0
     ],

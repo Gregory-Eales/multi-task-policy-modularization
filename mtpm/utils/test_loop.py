@@ -7,7 +7,10 @@ from tqdm import tqdm
 from procgen import ProcgenGym3Env
 
 
-def train_procgen(agent, env, n_steps, update_step):
+def test_procgen(agent, env, n_steps, update_step):
+
+	rewards = []
+	firsts = []
 
 	_, prev_state, prev_first = env.observe()
 
@@ -27,7 +30,10 @@ def train_procgen(agent, env, n_steps, update_step):
 			agent.update()
 
 
-def train(agent, env, n_steps, update_step):
+def test(agent, env, n_steps, update_step):
+
+	rewards = []
+	firsts = []
 
 	_, prev_state, prev_first = env.observe()
 

@@ -34,7 +34,7 @@ class Buffer(object):
 
 	def plot_reward(self):
 		num_steps = len(self.mean_reward)
-		steps = np.linspace(0, len(self.states)*num_steps, num=num_steps)
+		steps = np.linspace(0, len(self.firsts)*num_steps, num=num_steps)
 		plt.clf()
 		plt.title("Mean Reward")
 		plt.xlabel("Steps")
@@ -54,10 +54,10 @@ class Buffer(object):
 		self.store_k_log_probs(log_probs)
 
 	def store_prev_states(self, prev_state):
-		self.prev_states.append(torch.Tensor(prev_state))
+		self.prev_states.append(torch.Tensor(prev_state).type(torch.int8))
 
 	def store_state(self, state):
-		self.states.append(torch.Tensor(state))
+		self.states.append(torch.Tensor(state).type(torch.int8))
 
 	def store_actions(self, actions):
 		self.actions.append(actions)
@@ -69,7 +69,7 @@ class Buffer(object):
 		self.rewards.append(torch.Tensor(reward))
 
 	def store_firsts(self, first):
-		self.firsts.append(torch.Tensor(first))
+		self.firsts.append(torch.Tensor(first).type(torch.int8))
 		
 	def store_k_log_probs(self, k_log_prob):
 		self.k_log_probs.append(k_log_prob)
@@ -84,7 +84,7 @@ class Buffer(object):
 		firsts = torch.stack(self.firsts, dim=1).reshape(-1, 1).float()
 		sum_firsts = torch.sum(firsts)
 
-		self.mean_episode_length.append(len(self.states)/(sum_firsts))
+		self.mean_episode_length.append(len(self.firsts)/(sum_firsts))
 		self.mean_reward.append(sum_reward/sum_firsts)
 
 		self.plot_reward()
@@ -103,14 +103,20 @@ class Buffer(object):
 	def get(self):
 	
 		if len(self.states[0].shape) > 3:
-				states = torch.stack(self.states, dim=1).reshape(-1, 3, 64, 64)
+			states = torch.stack(self.states, dim=1).reshape(-1, 3, 64, 64)
+			del self.states
 		
 		else:
-			states = torch.cat(self.states, dim=1).reshape(-1, 8)  
+			states = torch.cat(self.states, dim=1).reshape(-1, 8)
+			del self.states
 		
 		actions = torch.stack(self.actions, dim=1).reshape(-1, 1)
 
+		del self.actions
+
 		k_log_probs = torch.stack(self.k_log_probs, dim=1).reshape(-1, 1)
+
+		del self.k_log_probs
 	
 		"""
 		states = torch.stack(self.states).reshape(-1, 8)
@@ -119,5 +125,7 @@ class Buffer(object):
 		"""
 
 		disc_rewards = self.disc_rewards
+
+		del self.disc_rewards
 
 		return states, actions, k_log_probs, disc_rewards
