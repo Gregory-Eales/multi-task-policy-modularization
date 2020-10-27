@@ -1,5 +1,6 @@
 import torch
 from torch.distributions import Categorical
+from torch.nn.utils.clip_grad import clip_grad_norm_
 from tqdm import tqdm
 import numpy as np
 import random
@@ -7,8 +8,8 @@ import gym3
 from matplotlib import pyplot as plt
 import time
 
-
 from .actor_critic import ActorCritic
+from .actor_critic_lin import LinActorCritic
 from .mptm_ac import ModularizedAC
 from .buffer import Buffer
 
@@ -41,8 +42,15 @@ class PPO(object):
 		self.epsilon = hparams.epsilon
 		self.k_epochs = hparams.k_epochs
 
-		self.actor = ActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
-		self.k_actor = ActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
+		if hparams.vision == True:
+			self.actor = ActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
+			self.k_actor = ActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
+
+		else:
+			self.actor = LinActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
+			self.k_actor = LinActorCritic(actor_lr=hparams.actor_lr, epsilon=hparams.epsilon)
+	
+
 		self.transfer_weights()
 
 		self.optimizer = torch.optim.Adam(
@@ -64,7 +72,7 @@ class PPO(object):
 				s = torch.tensor(s).reshape(-1, 3, 64, 64).float()
 
 			else:
-				#s = torch.tensor(s).float()
+				s = torch.tensor(s).float()
 				pass
 
 			pi, v = self.k_actor.forward(s)

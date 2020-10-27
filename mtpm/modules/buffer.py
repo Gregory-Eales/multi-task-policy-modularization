@@ -57,7 +57,7 @@ class Buffer(object):
 		self.prev_states.append(torch.Tensor(prev_state).type(torch.int8))
 
 	def store_state(self, state):
-		self.states.append(torch.Tensor(state).type(torch.int8))
+		self.states.append(torch.Tensor(state))#.type(torch.int8))
 
 	def store_actions(self, actions):
 		self.actions.append(actions)

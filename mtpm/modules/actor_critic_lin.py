@@ -1,10 +1,10 @@
 import torch
 
-class ActorCritic(torch.nn.Module):
+class LinActorCritic(torch.nn.Module):
 
 	def __init__(self, actor_lr, epsilon):
 
-		super(ActorCritic, self).__init__()
+		super(LinActorCritic, self).__init__()
 
 		self.epsilon = epsilon
 		self.define_network()

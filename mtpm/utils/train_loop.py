@@ -5,9 +5,18 @@ from torch.distributions import Categorical
 import gym
 from tqdm import tqdm
 from procgen import ProcgenGym3Env
+import gym3
 
 
-def train_procgen(agent, env, n_steps, update_step):
+def train_procgen(agent, env_name, n_envs, seed, n_steps, update_step):
+
+	env = ProcgenGym3Env(
+				num=n_envs,
+				env_name=env_name,
+				start_level=seed,
+				distribution_mode="easy",
+				use_backgrounds="False",
+				)
 
 	_, prev_state, prev_first = env.observe()
 
@@ -27,7 +36,14 @@ def train_procgen(agent, env, n_steps, update_step):
 			agent.update()
 
 
-def train(agent, env, n_steps, update_step):
+def train(agent, env_name, n_envs, seed, n_steps, update_step):
+
+
+	env = gym3.vectorize_gym(
+		num=n_envs,
+		env_kwargs={"id": env_name},
+		seed=seed
+		)
 
 	_, prev_state, prev_first = env.observe()
 
