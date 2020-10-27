@@ -65,6 +65,13 @@ class ModularizedAC(torch.nn.Module):
 		self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu:0')
 		self.to(self.device)
 
+
+	def gradient_clip_hook(self, grad, clip_value):
+		for p in self.parameters():
+    		p.register_hook(
+    			lambda grad: torch.clamp(grad, -clip_value, clip_value)
+    			)
+
 	def normalize(self, tensor):
 		return (tensor - tensor.mean()) / ((torch.std(tensor))+1e-5)
 
