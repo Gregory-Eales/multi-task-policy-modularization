@@ -25,7 +25,17 @@ def run_experiment(Agent, hparams):
 
 			agent = Agent(hparams)
 
-			if hparams.is_procgen:
+			if hparams.is_multi_task:
+				r = train_multi_task(
+					agent=agent,
+					env_name=env_name,
+					seed=seed, 
+					n_envs=hparams.n_envs,
+					n_steps=hparams.n_steps,        
+					update_step=hparams.update_step,    
+					)
+
+			elif hparams.is_procgen:
 
 				r = train_procgen(
 					agent=agent,
@@ -65,6 +75,8 @@ def run_experiment(Agent, hparams):
 
 
 		save_arguments(path=exp_path, args=hparams)
+
+		torch.save(agent.actor.state_dict(), "model.pt")
 
 def main():
 	pass

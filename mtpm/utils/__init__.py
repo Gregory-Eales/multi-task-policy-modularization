@@ -6,3 +6,4 @@ from .seed import *
 from .train_loop import *
 from .experiment_loop import *
 from .data import *
+from .multi_task_wrapper import *

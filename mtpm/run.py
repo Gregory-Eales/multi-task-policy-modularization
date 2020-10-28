@@ -5,41 +5,54 @@ from argparse import ArgumentParser
 from procgen import ProcgenEnv
 import gym3
 from procgen import ProcgenGym3Env
+import numpy as np
+import gym
+from modules import *
 
 #from ppo.ppo import PPO
 
 
-def run():
-    env = ProcgenGym3Env(num=1, env_name="coinrun", render_mode="rgb_array")
-    env = gym3.ViewerWrapper(env, info_key="rgb")
-    step = 0
-    for i in range(100):
-        
-        print(env.ac_space)
-        env.act(gym3.types_np.sample(env.ac_space, bshape=(env.num,)))
-        rew, obs, first = env.observe()
-        print(f"step {step} reward {rew} first {first}")
-        step += 1
+def run(params):
 
-    """    
-    ppo.policy_network.load_state_dict(torch.load("policy_params.pt"))
+    env = gym.make(params.env_name)
 
-    torch.manual_seed(1)
-    np.random.seed(1)
+    agent = PPO(params)
+    agent.actor.load_state_dict(torch.load("model.pt"))
 
-    ppo = PPO(alpha=0.00001, in_dim=4, out_dim=2)
+    done = False
 
-    ppo.policy_network.load_state_dict(torch.load("policy_params.pt"))
+    state = env.reset()
 
-    ppo.train(env, n_epoch=1000, n_steps=800, render=False, verbos=False)
+    rewards = []
 
-    plt.plot(ppo.hist_length)
-    plt.show()
-    """
+    while not done:
 
+        action = agent.act_det(state)
+
+        state, reward, done, info = env.step(action)
+
+        env.render()
+
+        rewards.append(reward)
+
+
+    print(np.sum(rewards))
 
 if __name__ == '__main__':
+
+    parser = ArgumentParser(add_help=True)
+
+    parser.add_argument('--env_name', default="LunarLander-v2", type=str)
+    parser.add_argument('--batch_sz', default=256, type=int)
+    parser.add_argument('--gamma', default=0.99, type=float)
+    parser.add_argument('--k_epochs', default=4, type=int)
+    parser.add_argument('--actor_lr', default=5e-4, type=float)
+    parser.add_argument('--critic_lr', default=5e-4, type=float)
+    parser.add_argument('--epsilon', default=0.2, type=float)
+    parser.add_argument('--vision', default=False, type=bool)
     
-    run()
+    params = parser.parse_args()
+
+    run(params)
     
     

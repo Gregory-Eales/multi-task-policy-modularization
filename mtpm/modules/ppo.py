@@ -84,6 +84,22 @@ class PPO(object):
 
 			return a.detach().numpy()
 
+	def act_det(self, s):
+
+
+
+		with torch.no_grad():
+
+			if len(s.shape) > 3:
+				s = torch.tensor(s).reshape(-1, 3, 64, 64).float()
+
+			else:
+				s = torch.tensor(s).float()
+				pass
+
+			pi, v = self.k_actor.forward(s)
+			return np.argmax(pi.numpy())
+
 	def act_deterministic(self, s):
 
 		with torch.no_grad():

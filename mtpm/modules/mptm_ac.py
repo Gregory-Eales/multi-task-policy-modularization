@@ -68,9 +68,9 @@ class ModularizedAC(torch.nn.Module):
 
 	def gradient_clip_hook(self, grad, clip_value):
 		for p in self.parameters():
-    		p.register_hook(
-    			lambda grad: torch.clamp(grad, -clip_value, clip_value)
-    			)
+			p.register_hook(
+				lambda grad: torch.clamp(grad, -clip_value, clip_value)
+				)
 
 	def normalize(self, tensor):
 		return (tensor - tensor.mean()) / ((torch.std(tensor))+1e-5)
