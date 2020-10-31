@@ -7,57 +7,60 @@ import json
 
 def save_arguments(path="", args=None):
 
-	print(vars(args))
+    print(vars(args))
 
-	if args!=None:
-		file = open("{}/arguments.json".format(path), "w", encoding="utf8")
-		json.dump(vars(args), file, indent=4, sort_keys=True)
-		file.close()
+    if args!=None:
+        file = open("{}/arguments.json".format(path), "w", encoding="utf8")
+        json.dump(vars(args), file, indent=4, sort_keys=True)
+        file.close()
 
 def load_arguments(path=""):
-	file = open("{}arguments.json".format(path), "rb")
-	return json.load(file)
+    file = open("{}arguments.json".format(path), "rb")
+    return json.load(file)
 
 
 def save_results(env_name, seeds, rewards, update_steps, path=""):
 
-	rewards = np.array([np.array(r) for r in rewards]).T
+    if type(env_name) == list:
+        env_name = " ".join(env_name)
+
+    rewards = np.array([np.array(r) for r in rewards]).T
 
 
-	seeds = ["Seed: {}".format(seed) for seed in seeds]
+    seeds = ["Seed: {}".format(seed) for seed in seeds]
 
-	data = pd.DataFrame(rewards, columns=seeds)
+    data = pd.DataFrame(rewards, columns=seeds)
 
-	data["Steps"] = update_steps*np.array(list(range(rewards.shape[0])))
+    data["Steps"] = update_steps*np.array(list(range(rewards.shape[0])))
 
-	cols = data.columns.tolist()
-	cols = cols[-1:] + cols[:-1]
-	data = data[cols]
-	data.index.name = "Index"
-	print(data.head())
+    cols = data.columns.tolist()
+    cols = cols[-1:] + cols[:-1]
+    data = data[cols]
+    data.index.name = "Index"
+    print(data.head())
 
-	if path != "":
-		data.to_csv("{}/results/{}_rewards.csv".format(path, env_name))
+    if path != "":
+        data.to_csv("{}/results/{}_rewards.csv".format(path, env_name))
 
-	else:
-		data.to_csv("{}_rewards.csv".format(env_name))
+    else:
+        data.to_csv("{}_rewards.csv".format(env_name))
 
 def main():
 
-	from argparse import ArgumentParser
+    from argparse import ArgumentParser
 
-	parser = ArgumentParser(add_help=False)
+    parser = ArgumentParser(add_help=False)
 
-	# experiment and  environment
-	parser.add_argument('--experiment_name', default="default", type=str)
-	parser.add_argument(
-	'--env_names',
-	default=["Breakout-ram-v0"]#,"Pong-ram-v0"]
-	)
-	args = parser.parse_args()
+    # experiment and  environment
+    parser.add_argument('--experiment_name', default="default", type=str)
+    parser.add_argument(
+    '--env_names',
+    default=["Breakout-ram-v0"]#,"Pong-ram-v0"]
+    )
+    args = parser.parse_args()
 
-	print(vars(args))
+    print(vars(args))
 
 
 if __name__ == "__main__":
-	main()
+    main()

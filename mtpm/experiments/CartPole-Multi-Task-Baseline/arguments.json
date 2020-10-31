@@ -3,10 +3,10 @@
     "batch_sz": 256,
     "critic_lr": 0.0005,
     "env_names": [
-        "Acrobot-v1"
+        "CartPole-v0"
     ],
     "epsilon": 0.2,
-    "experiment_name": "test",
+    "experiment_name": "CartPole-Multi-Task-Baseline",
     "gamma": 0.99,
     "graph": true,
     "is_multi_task": true,

@@ -1,8 +1,15 @@
 import torch
 import os
 
-def save_model(model, env_name="", path=""):
-    torch.save(model.state_dict(), "{}.pt".format(name))
+def save_model(agent, env_name, path=""):
+    
+    if type(env_name) == list:
+        env_name = " ".join(env_name[:])
+
+    torch.save(
+        agent.actor.state_dict(),
+        "{}/params/{}_model.pt".format(path, env_name)
+    )
 
 def create_exp_dir(experiment_name="default"):
 

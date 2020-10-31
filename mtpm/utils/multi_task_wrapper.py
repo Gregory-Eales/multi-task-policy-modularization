@@ -76,9 +76,9 @@ def vectorize_multi_task(
     envs = []
 
     env_names = cycle(env_names)
-    
+
     for env in env_names:
-       
+
         envs.append(
         SubprocEnv(
             env_fn=_make_gym_env,
@@ -89,20 +89,20 @@ def vectorize_multi_task(
             )
         )
 
-     
+
         if len(envs) >= num:
             break
-         
+
     return ConcatEnv(envs)
 
 
 class MultiTaskWrapper(object):
 
-    
+
         def __init__(self, env_name, ob_space, ac_space, seed=None):
 
                 self.env = gym.make(env_name)
-                
+
                 self.ac_space = ac_space
                 self.ob_space = ob_space
 
@@ -113,7 +113,7 @@ class MultiTaskWrapper(object):
                 #self.ob_space = self.get_dim(self.env.observation_space)
 
                 env_scales = {
-                    "Acrobot-v1":600,
+                    "Acrobot-v1":1,
                     "MountainCar-v0":200,
                     "CartPole-v0":200,
                     "LunarLander-v2":400,
@@ -142,7 +142,7 @@ class MultiTaskWrapper(object):
         def step(self, action):
 
                 if action >= self.real_ac:
-                        return self.state, -1000, True, None
+                        return self.state, -10, False, None
 
                 else:
                         self.state, self.reward, self.done, _ = self.env.step(action)
@@ -150,7 +150,7 @@ class MultiTaskWrapper(object):
                         self.convert_state()
 
                 #/self.r_scale
-                return self.state, self.reward, self.done, None
+                return self.state, self.reward/self.r_scale, self.done, None
 
         def convert_state(self):
             state = np.zeros([self.ob_space])
