@@ -45,7 +45,7 @@ if __name__ == '__main__':
     # experiment and  environment
     parser.add_argument(
         '--experiment_name',
-        default="Acrobot-Multi-Task-Baseline",
+        default="Acrobot-Single-Task-Baseline",
         type=str
     )
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     parser.add_argument('--graph', default=True, type=bool)
 
     # training params
-    parser.add_argument('--is_multi_task', default=True, type=bool)
+    parser.add_argument('--is_multi_task', default=False, type=bool)
     parser.add_argument('--is_procgen', default=False, type=bool)
     parser.add_argument('--random_seeds', default=list(range(1)), type=list)
     parser.add_argument('--n_steps', default=30000, type=int)
@@ -71,6 +71,9 @@ if __name__ == '__main__':
     parser.add_argument('--actor_lr', default=5e-4, type=float)
     parser.add_argument('--critic_lr', default=5e-4, type=float)
     parser.add_argument('--epsilon', default=0.2, type=float)
+    parser.add_argument('--in_dim', default=6, type=int)
+    parser.add_argument('--out_dim', default=3, type=int)
+    parser.add_argument('--h_dim', default=64, type=int)
 
     params = parser.parse_args()
 

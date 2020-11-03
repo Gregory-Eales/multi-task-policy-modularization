@@ -1,0 +1,26 @@
+{
+    "actor_lr": 0.0005,
+    "batch_sz": 256,
+    "critic_lr": 0.0005,
+    "env_names": [
+        "Acrobot-v1"
+    ],
+    "epsilon": 0.2,
+    "experiment_name": "Acrobot-Single-Task-Baseline",
+    "gamma": 0.99,
+    "graph": true,
+    "h_dim": 64,
+    "in_dim": 6,
+    "is_multi_task": false,
+    "is_procgen": false,
+    "k_epochs": 4,
+    "log": true,
+    "n_envs": 4,
+    "n_steps": 30000,
+    "out_dim": 3,
+    "random_seeds": [
+        0
+    ],
+    "update_step": 1200,
+    "vision": false
+}
