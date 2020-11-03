@@ -2,12 +2,8 @@
 
 <div align="center">    
  
-# Improved Model Based RL using Action Narration and Ensamble Discourse    
+# Multi Task Policy Modularization 
 
-[![Paper](http://img.shields.io/badge/paper-arxiv.1001.2234-B31B1B.svg)](https://www.nature.com/articles/nature14539)
-[![Conference](http://img.shields.io/badge/NeurIPS-2019-4b44ce.svg)](https://papers.nips.cc/book/advances-in-neural-information-processing-systems-31-2018)
-[![Conference](http://img.shields.io/badge/ICLR-2019-4b44ce.svg)](https://papers.nips.cc/book/advances-in-neural-information-processing-systems-31-2018)
-[![Conference](http://img.shields.io/badge/AnyConference-year-4b44ce.svg)](https://papers.nips.cc/book/advances-in-neural-information-processing-systems-31-2018)  
 <!--
 ARXIV   
 [![Paper](http://img.shields.io/badge/arxiv-math.co:1480.1111-B31B1B.svg)](https://www.nature.com/articles/nature14539)
@@ -28,15 +24,15 @@ First, install dependencies
 # clone multi-task-policy-modularization
 git clone https://github.com/Gregory-Eales/multi-task-policy-modularization
 
-# install mban
-cd mban
+# install mtpm
+cd mtpm
 pip install -e .   
 pip install -r requirements.txt
  ```   
  Next, navigate to any file and run it.   
  ```bash
 # module folder
-cd multi-task-policy-modularization
+cd multi-task-policy-modularization/mtpm
 
 # run module 
 python train.py    
@@ -45,8 +41,8 @@ python train.py
 ## Imports
 This project is setup as a package which means you can now easily import any file into any other file like so:
 ```python
-from mban.envs.env import Env
-from mban.agents import Agent
+from mtpm.envs.env import Env
+from mtpm.agents import Agent
 from pytorch_lightning import Trainer
 
 # agent
@@ -67,7 +63,7 @@ agent.run(env)
 @article{Gregory Eales,
   title={Multi-Task Policy Modularization},
   author={University of London},
-  journal={arxiv},
+  journal={unpublished},
   year={2020}
 }
 ```   
