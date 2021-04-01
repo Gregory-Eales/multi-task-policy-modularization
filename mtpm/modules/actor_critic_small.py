@@ -87,12 +87,21 @@ class ActorCritic(torch.nn.Module):
 
 		self.epsilon = epsilon
 		self.define_network()
-		self.optimizer = torch.optim.Adam(params=self.parameters(), lr=actor_lr)
-		self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu:0')
+
+		self.optimizer = torch.optim.Adam(
+			params=self.parameters(),
+			lr=actor_lr
+			)
+
+		self.device = torch.device(
+			'cuda:0' if torch.cuda.is_available() else 'cpu:0'
+			)
+
 		self.to(self.device)
 		self.prev_params = self.parameters()
 
 	def define_network(self):
+		
 		self.relu = torch.nn.ReLU()
 		self.leaky_relu = torch.nn.LeakyReLU()
 		self.sigmoid = torch.nn.Sigmoid()
