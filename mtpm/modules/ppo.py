@@ -1,15 +1,15 @@
-import torch
-from torch.distributions import Categorical
 from torch.nn.utils.clip_grad import clip_grad_norm_
+from torch.distributions import Categorical
+from matplotlib import pyplot as plt
 from tqdm import tqdm
 import numpy as np
 import random
+import torch
 import gym3
-from matplotlib import pyplot as plt
 import time
 
-from .actor_critic import ActorCritic
 from .actor_critic_lin import LinActorCritic
+from .actor_critic import ActorCritic
 from .mptm_ac import ModularizedAC
 from .buffer import Buffer
 

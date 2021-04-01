@@ -95,9 +95,6 @@ env = ProcgenGym3Env(
 env = gym3.ViewerWrapper(env, info_key="rgb")
 
 for i in tqdm(range(100)):
-	
-
-	
 
 	env.act(gym3.types_np.sample(env.ac_space, bshape=(env.num,)))
 	rew, obs, first = env.observe()
