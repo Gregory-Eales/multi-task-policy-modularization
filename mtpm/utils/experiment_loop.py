@@ -16,10 +16,10 @@ def run_experiment(Agent, hparams):
     exp_path = create_exp_dir(hparams.experiment_name)
 
     if hparams.is_multi_task:
-        run_multi_task(Agent)
+        run_multi_task(Agent, hparams, exp_path)
 
     else:
-        run_single_task()
+        run_single_task(Agent, hparams, exp_path)
 
 
 def run_multi_task(Agent, hparams, exp_path):
@@ -43,7 +43,7 @@ def run_multi_task(Agent, hparams, exp_path):
 
         rewards.append(r)
 
-    save()
+    save(rewards, exp_path, hparams, agent=None)
 
 def run_single_task(Agent, hparams, exp_path):
 
@@ -78,6 +78,8 @@ def run_single_task(Agent, hparams, exp_path):
                         )
 
             rewards.append(r)
+
+        save(rewards, exp_path, hparams, agent=None)
 
 
 def save(rewards, exp_path, hparams, agent=None):

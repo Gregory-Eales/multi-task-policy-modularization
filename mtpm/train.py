@@ -1,13 +1,13 @@
+from matplotlib import pyplot as plt
 from argparse import ArgumentParser
+from procgen import ProcgenGym3Env
 from tqdm import tqdm
 import numpy as np
-import os
 import random
 import gym3
-from procgen import ProcgenGym3Env
 import time
-from matplotlib import pyplot as plt
 import copy
+import os
 
 from modules import *
 from utils import *
@@ -38,7 +38,6 @@ if __name__ == '__main__':
             "CartPole-v0",
             "LunarLander-v2"
             ]
-
 
     parser = ArgumentParser(add_help=True)
 

@@ -8,9 +8,7 @@ def generate_graphs(agent, path=None, env_name=None):
 	reward_per_epoch(agent.get_rewards(), path=path)
 
 
-
 def plot_rewards(rewards, update_steps, path=None, env_name=""):
-
 
 	plt.clf()
 
@@ -64,8 +62,6 @@ def reward_per_epoch(rewards, path=None):
 	else:
 		plt.savefig('{}/graphs/reward_per_epoch.png'.format(path))
 
-
-	
 	# CONFIDENCE BANDS !
 	
 	N = 21

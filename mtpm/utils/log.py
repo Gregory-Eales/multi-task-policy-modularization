@@ -1,7 +1,19 @@
 import logging
 
 def init_log(path):
-	logging.basicConfig(filename='example.log', level=logging.DEBUG)
+
+	logging.basicConfig(
+		filename='{}/experiment.log'.format(path),
+		level=logging.DEBUG
+		)
+
+	logger = logging.getLogger()
+	logger.setLevel(logging.DEBUG)
+	
+	output_file_handler = logging.FileHandler("output.log")
+	stdout_handler = logging.StreamHandler(sys.stdout)
+	a_logger.addHandler(output_file_handler)
+	a_logger.addHandler(stdout_handler)
 
 def log():
 
