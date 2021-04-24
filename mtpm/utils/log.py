@@ -26,6 +26,7 @@ def log():
 
 	logging.basicConfig(level=logging.DEBUG, format='%(asctime)s  %(message)s', datefmt='[%d-%b-%y %H:%M:%S]')
 
+	'''
 	logging.debug('This is a debug message')
 	logging.info('This is an info message')
 	logging.warning('This is a warning message')
@@ -39,6 +40,7 @@ def log():
 	#print("Largest Episode Length: {}".format(max(episode_lengths)))
 
 	#print("Epoch: {}".format(epoch))
-
+	'''
+	
 if __name__ == "__main__":
 	log()

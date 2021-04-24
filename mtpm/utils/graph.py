@@ -16,11 +16,6 @@ def plot_rewards(rewards, update_steps, path=None, env_name=""):
 
 	mean_rewards = rewards.mean(axis=0)
 
-
-	print(rewards.shape)
-
-	print(mean_rewards.shape)
-
 	steps = np.array(list(range(mean_rewards.shape[0])))*update_steps
 
 	plt.plot(steps, mean_rewards, label="mean rewards")
@@ -42,7 +37,7 @@ def plot_rewards(rewards, update_steps, path=None, env_name=""):
 		plt.show()
 
 	else:
-		plt.savefig('{}/graphs/{}_reward.png'.format(path, env_name))
+		plt.savefig('{}/graphs/{}-reward.png'.format(path, env_name[0]))
 
 	plt.clf()
 

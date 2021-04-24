@@ -1,113 +1,136 @@
-import gym
 from matplotlib import pyplot as plt
-import gym3
 from procgen import ProcgenGym3Env
+import gym3
+import gym
 
-
-from .dir import *
-from .seed import *
 from .train_loop import *
 from .graph import *
 from .data import *
+from .seed import *
+from .dir import *
 
 
 def run_experiment(Agent, hparams):
 
-    exp_path = create_exp_dir(hparams.experiment_name)
+	exp_path = create_exp_dir(hparams.experiment_name)
 
-    if hparams.is_multi_task:
-        run_multi_task(Agent, hparams, exp_path)
+	if hparams.is_multi_task:
+		run_multi_task(Agent, hparams, exp_path)
 
-    else:
-        run_single_task(Agent, hparams, exp_path)
+	else:
+		run_single_task(Agent, hparams, exp_path)
 
 
 def run_multi_task(Agent, hparams, exp_path):
 
-    rewards = []
+	"""
+	runs experiment using multiple environments inside of the
+	multi-task wrapper
+	"""
 
-    for seed in hparams.random_seeds:
+	rewards = []
 
-        set_seed(seed)
+	for seed in hparams.random_seeds:
 
-        agent = Agent(hparams)
-        
-        r = train_multi_task(
-            agent=agent,
-            env_names=hparams.env_names,
-            seed=seed,
-            n_envs=hparams.n_envs,
-            n_steps=hparams.n_steps,
-            update_step=hparams.update_step,
-            )
+		set_seed(seed)
 
-        rewards.append(r)
+		agent = Agent(hparams)
+		
+		r = train_multi_task(
+			agent=agent,
+			env_names=hparams.env_names,
+			seed=seed,
+			n_envs=hparams.n_envs,
+			n_steps=hparams.n_steps,
+			update_step=hparams.update_step,
+			)
 
-    save(rewards, exp_path, hparams, agent=None)
+		rewards.append(r)
+
+	save(rewards, exp_path, hparams, agent=None)
+
+	save_arguments(path=exp_path, args=hparams)
+
 
 def run_single_task(Agent, hparams, exp_path):
 
-    for env_name in hparams.env_names:
-            
-            rewards = []
-            for seed in hparams.random_seeds:
+	"""
+	runs a experiment on a single task using gym3 parallelization.
+	agent is an agent object and should conform to the way it is used
+	inside of the training function
+	"""
 
-                set_seed(seed)
+	for env_name in hparams.env_names:
+			
+			rewards = []
+			for seed in hparams.random_seeds:
 
-                agent = Agent(hparams)
+				set_seed(seed)
 
-                if hparams.is_procgen:
+				agent = Agent(hparams)
 
-                    r = train_procgen(
-                        agent=agent,
-                        env_name=env_name,
-                        seed=seed, 
-                        n_envs=hparams.n_envs,
-                        n_steps=hparams.n_steps,        
-                        update_step=hparams.update_step,    
-                        )
+				if hparams.is_procgen:
 
-                else:
-                    r = train(
-                        agent=agent,
-                        env_name=env_name,
-                        seed=seed, 
-                        n_envs=hparams.n_envs,
-                        n_steps=hparams.n_steps,        
-                        update_step=hparams.update_step,    
-                        )
+					r = train_procgen(
+						agent=agent,
+						env_name=env_name,
+						seed=seed, 
+						n_envs=hparams.n_envs,
+						n_steps=hparams.n_steps,        
+						update_step=hparams.update_step,    
+						)
 
-            rewards.append(r)
+				else:
+					r = train(
+						agent=agent,
+						env_name=env_name,
+						seed=seed, 
+						n_envs=hparams.n_envs,
+						n_steps=hparams.n_steps,        
+						update_step=hparams.update_step,    
+						)
 
-        save(rewards, exp_path, hparams, agent=None)
+				rewards.append(r)
+			
+			save(rewards, exp_path, hparams, env_name, agent=None)
+
+	save_arguments(path=exp_path, args=hparams)
 
 
-def save(rewards, exp_path, hparams, agent=None):
+def save(rewards, exp_path, hparams, env_name, agent=None):
 
-    plot_rewards(
-            rewards,
-            hparams.update_step,
-            path=exp_path,
-            env_name=hparams.env_names,
-            )
+	"""
+	saves the rewards and parameters of an
+	experiment and saves them in the corresponding experiment
+	folder. the reward graph should contain a confidence band
+	between all the different random seeds
+	"""
 
-    save_results(
-        env_name=hparams.env_names,
-        rewards=rewards,
-        path=exp_path,
-        update_steps=hparams.update_step,
-        seeds=hparams.random_seeds,
-        )
+	plot_rewards(
+			rewards,
+			hparams.update_step,
+			path=exp_path,
+			env_name=env_name,
+			)
 
-    if agent not None:
-        save_model(agent, hparams.env_names, exp_path)
+	save_results(
+		env_name=env_name,
+		rewards=rewards,
+		path=exp_path,
+		update_steps=hparams.update_step,
+		seeds=hparams.random_seeds,
+		)
 
-    save_arguments(path=exp_path, args=hparams)
+	if agent != None:
+		save_model(agent, env_name, exp_path)
+
+
+	
 
 
 def main():
-    pass
+	pass
 
 
 if __name__ == "__main__":
-    main()
+	main()

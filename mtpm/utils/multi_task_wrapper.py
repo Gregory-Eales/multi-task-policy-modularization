@@ -1,26 +1,20 @@
 from typing import Any, Dict, List, Sequence, Tuple
-
-import numpy as np
-
+from gym3.types_np import concat, split
+from gym3.interop import _make_gym_env
+from gym.spaces import Box, Discrete
+from gym3.subproc import SubprocEnv
+from gym3.concat import ConcatEnv
+from gym3.internal import misc
 from itertools import cycle
+from gym3 import types_np
+from gym3.env import Env
+import numpy as np
 import gym3
 import gym
-from gym.spaces import Box, Discrete
-from gym3.env import Env
-from gym3.internal import misc
-from gym3.types_np import concat, split
-from gym3 import types_np
-from gym3.concat import ConcatEnv
-from gym3.env import Env
-from gym3.internal import misc
-from gym3.subproc import SubprocEnv
-from gym3.interop import _make_gym_env
-
 
 """
 multi task wrapper needs to make multiple different envs
 compatible with the same action and observations space
-
 """
 
 def get_dim(space):
@@ -164,38 +158,8 @@ class MultiTaskWrapper(object):
 
 def main():
 
-    """
-    #env = MultiTaskWrapper("LunarLander-v2", 8, 8)
-    #env = MultiTaskWrapper("CartPole-v0", 8, 8)
-    #env = MultiTaskWrapper("MountainCar-v0", 8, 8)
-    #env = MultiTaskWrapper("Pendulum-v0", 8, 8)
-    env_names = [
-            "Pendulum-v0",
-            "MountainCar-v0",
-            "CartPole-v0",
-            "LunarLander-v2"
-            ]
-
-    #env = MultiTaskWrapper("LunarLander-v2", 8, 4, 10)
-    #env.reset()
-    #print(env.step(5))
-
-    env = gym3.vectorize_gym(
-            num=4,
-            env_fn=make_multi_task,
-            env_kwargs={
-            "env_name":"CartPole-v0",
-            "ob":8,
-            "ac":8,
-            "r_scale":1,
-            }
-            )
-    """
-
     env_names = ["Acrobot-v1","MountainCar-v0", "CartPole-v0", "LunarLander-v2"]
-
     env = vectorize_multi_task(env_names, num=4, ob=8, ac=4, seed=0)
-
 
 
 if __name__ == "__main__":

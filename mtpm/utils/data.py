@@ -24,6 +24,7 @@ def save_results(env_name, seeds, rewards, update_steps, path=""):
     if type(env_name) == list:
         env_name = " ".join(env_name)
 
+
     rewards = np.array([np.array(r) for r in rewards]).T
 
 

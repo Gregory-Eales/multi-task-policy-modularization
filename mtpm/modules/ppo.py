@@ -77,8 +77,6 @@ class PPO(object):
 
     def act(self, s):
 
-
-
         with torch.no_grad():
 
             if len(s.shape) > 3:
@@ -98,8 +96,6 @@ class PPO(object):
             return a.detach().numpy()
 
     def act_det(self, s):
-
-
 
         with torch.no_grad():
 
@@ -206,7 +202,6 @@ class PPO(object):
 
     def get_rewards(self):
         return self.buffer.mean_reward
-
 
 def main():
     pass

@@ -44,11 +44,11 @@ if __name__ == '__main__':
     # experiment and  environment
     parser.add_argument(
         '--experiment_name',
-        default="Acrobot-Single-Task-Baseline",
+        default="CartPole-Single-Task-Baseline",
         type=str
     )
 
-    parser.add_argument('--env_names', default=["Acrobot-v1"])
+    parser.add_argument('--env_names', default=["CartPole-v0"])
 
     # saving options
     parser.add_argument('--log', default=True, type=bool)
@@ -57,9 +57,9 @@ if __name__ == '__main__':
     # training params
     parser.add_argument('--is_multi_task', default=False, type=bool)
     parser.add_argument('--is_procgen', default=False, type=bool)
-    parser.add_argument('--random_seeds', default=list(range(1)), type=list)
+    parser.add_argument('--random_seeds', default=list(range(5)), type=list)
     parser.add_argument('--n_steps', default=30000, type=int)
-    parser.add_argument('--batch_sz', default=256, type=int)
+    parser.add_argument('--batch_sz', default=64, type=int)
     parser.add_argument('--gamma', default=0.99, type=float)
     parser.add_argument('--k_epochs', default=4, type=int)
     parser.add_argument('--n_envs', default=4, type=int)
@@ -67,11 +67,11 @@ if __name__ == '__main__':
 
     # model params
     parser.add_argument('--vision', default=False, type=bool)
-    parser.add_argument('--actor_lr', default=5e-4, type=float)
-    parser.add_argument('--critic_lr', default=5e-4, type=float)
+    parser.add_argument('--actor_lr', default=5e-3, type=float)
+    parser.add_argument('--critic_lr', default=5e-3, type=float)
     parser.add_argument('--epsilon', default=0.2, type=float)
-    parser.add_argument('--in_dim', default=6, type=int)
-    parser.add_argument('--out_dim', default=3, type=int)
+    parser.add_argument('--in_dim', default=4, type=int)
+    parser.add_argument('--out_dim', default=2, type=int)
     parser.add_argument('--h_dim', default=64, type=int)
 
     params = parser.parse_args()

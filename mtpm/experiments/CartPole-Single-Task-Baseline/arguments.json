@@ -3,23 +3,27 @@
     "batch_sz": 64,
     "critic_lr": 0.005,
     "env_names": [
-        "Acrobot-v1"
+        "CartPole-v0"
     ],
     "epsilon": 0.2,
-    "experiment_name": "Acrobot-Single-Task-Baseline",
+    "experiment_name": "CartPole-Single-Task-Baseline",
     "gamma": 0.99,
     "graph": true,
     "h_dim": 64,
-    "in_dim": 6,
+    "in_dim": 4,
     "is_multi_task": false,
     "is_procgen": false,
     "k_epochs": 4,
     "log": true,
     "n_envs": 4,
     "n_steps": 30000,
-    "out_dim": 3,
+    "out_dim": 2,
     "random_seeds": [
-        0
+        0,
+        1,
+        2,
+        3,
+        4
     ],
     "update_step": 1200,
     "vision": false

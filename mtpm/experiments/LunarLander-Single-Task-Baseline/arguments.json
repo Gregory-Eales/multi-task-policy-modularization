@@ -3,21 +3,21 @@
     "batch_sz": 64,
     "critic_lr": 0.005,
     "env_names": [
-        "Acrobot-v1"
+        "LunarLander-v2"
     ],
     "epsilon": 0.2,
-    "experiment_name": "Acrobot-Single-Task-Baseline",
+    "experiment_name": "LunarLander-Single-Task-Baseline",
     "gamma": 0.99,
     "graph": true,
     "h_dim": 64,
-    "in_dim": 6,
+    "in_dim": 8,
     "is_multi_task": false,
     "is_procgen": false,
     "k_epochs": 4,
     "log": true,
     "n_envs": 4,
     "n_steps": 30000,
-    "out_dim": 3,
+    "out_dim": 4,
     "random_seeds": [
         0
     ],
