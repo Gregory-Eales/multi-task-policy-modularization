@@ -43,7 +43,6 @@ This project is setup as a package which means you can now easily import any fil
 ```python
 from mtpm.envs.env import Env
 from mtpm.agents import Agent
-from pytorch_lightning import Trainer
 
 # agent
 agent = Agent()
